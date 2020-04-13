@@ -1,11 +1,9 @@
-data/train.csv
-data/test.csv
-data/submission.csv
+data/*.csv
 data/.DS_Store
+
 
 .DS_Store
 
 trainings
 
-submission_ann.csv
-submission_cnn.csv
+*.csv

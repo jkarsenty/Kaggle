@@ -1,2 +1,10 @@
 data/*.csv
 data/*.zip
+data/.DS_Store
+
+.DS_Store
+
+*.csv
+*.docx
+
+trainings
