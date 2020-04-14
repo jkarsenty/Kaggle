@@ -15,7 +15,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 nombre de user et nom du fichier est a mettre en parametre '''
 nb_users = 10
 nb_categories = 10
-run_import_data(nb_users, nb_categories, 'data/merge_df.csv')
+#run_import_data(nb_users, nb_categories, 'data/merge_df.csv')
 
 data = pd.read_csv('data/merge_df.csv')
 
@@ -34,7 +34,7 @@ print(M)
 
 ''' Permet de faire le Onehot apres le padding.
 matrix after padding and max_categories_found a mettre en parametre '''
-X_onehot = one_hot_post_padding(M,nb_categories+1)
+X_onehot = one_hot_post_padding(M,nb_categories)
 #print('\n','_________','\n')
 #print(X_onehot)
 
@@ -61,6 +61,12 @@ Commande "tensorboard --logdir trainings" sur terminal.
 Puis ouvrir l'url que nous renvoie le terminal (http://localhost:6006/). '''
 
 ## EVALUATION ##
-print(x_test.shape)
-p = model.predict(x_test)
+'''Permet d'evaluer notre modele
+x_test,y_test,nb_categories,les K top score and model en parametre. '''
+p = evaluation(x_test,y_test,nb_categories,3, model)
 print(p)
+
+
+"""
+Changer le preprocessing avec l'indice pour les orders
+Finaliser l'evaluation """
