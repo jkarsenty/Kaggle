@@ -24,7 +24,8 @@ def export_df(dataframe,path_name):
     dataframe.to_csv (path_name, index = False, header=True)
     return
 
-def run_import_data(nb_user = 5, path = 'data/merge_df.csv'):
+
+def run_import_data(nb_user = 5, nb_categories = 21, path = 'data/merge_df.csv'):
     '''
     function to import and call in the other modules to run all the import_data process
 
@@ -68,6 +69,8 @@ def run_import_data(nb_user = 5, path = 'data/merge_df.csv'):
     p_df = products_df.drop('product_id', axis = 1)
     #p_df = p_df.sort_values('user_id')
 
+    Nc = nb_categories
+    p_df = p_df[p_df['department_id'].isin(range(Nc))]
     export_df(p_df,'data/merge_df.csv')
 
     #nb_user = products_df['user_id']
