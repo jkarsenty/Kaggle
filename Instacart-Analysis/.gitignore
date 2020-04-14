@@ -9,3 +9,5 @@ data/.DS_Store
 
 trainings
 requirements.py
+test.py
+weights.hdf5
