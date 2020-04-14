@@ -1,15 +1,18 @@
+#!/usr/bin/env python3
+# coding: utf-8
+
 '''
 Step 2
 all functions for the preprocessing of our data, in order to have what we need
 to run the LSTM model in the next step.
 - preprocess_for_padding(dataframe)
+- padding(sequence, nb_users, nb_orders, nb_categories)
+- one_hot_post_padding(matrix, max_categories_found)
 '''
 
-import pandas as pd
+import numpy as np
+from keras.preprocessing.sequence import pad_sequences
 
-# Permet de run l'import et de recuperer fichier corect pour le preprocessing
-# nom du fichier est a mettre en parametre
-#run_import_data('data/merge_df.csv')
 
 def preprocess_for_padding(dataframe):
     '''
@@ -46,3 +49,78 @@ def preprocess_for_padding(dataframe):
     #print(L)
     #print(len(L))
     return L
+
+def padding(sequence, nb_users, nb_orders, nb_categories):
+    '''
+    Make the padding with keras.preprocessing.sequence.pad_sequences
+    Intput:
+        sequences
+        nb_users
+        nb_orders - nombre de orders par user
+        nb_categories - donnera la taille de chaque sequence
+    Output:
+        X matrix of padding sequence
+    '''
+    X = np.zeros((nb_users, nb_orders, nb_categories))
+
+    for i in range(len(sequence)):
+        #print(i)
+        xi = pad_sequences(sequence[i], maxlen=nb_categories, padding='pre', truncating='pre', value=0)
+        #print(xi)
+        t = min(nb_orders,xi.shape[0])
+        xi = xi[:t]
+        #print(xi)
+        X[i] = xi
+
+    return X
+
+
+def one_hot_post_padding(matrix, max_categories_found,):
+    '''
+    Make a one hot matrix X after a padding
+    Input:
+        matrix after the padding
+        max_categories_found = max of categorie found in every baskets
+    Output:
+        a one hot matrix as an array
+    '''
+
+    X_onehot = [] #our new onehot list of list of list in output
+
+    for user in matrix:
+        '''for each user'''
+        L = [] #onehot of each user
+
+        for order in user:
+            '''for each basket in each user'''
+            L1 = np.zeros(max_categories_found) #onehot of each basket/order by user
+            #print(order)
+
+            for categorie in order:
+                '''for each categorie in each order'''
+                #print(categorie)
+                c = int(categorie) #transform categorie from float to integer
+
+                if c == 0:
+                    L1[c] = 0
+                else:
+                    L1[c] = 1
+
+            L.append(list(L1)) #append each order to each user in the list
+
+        X_onehot.append(L) #append each user in one list
+
+    return np.array(X_onehot)
+
+
+#### Test functions ###
+
+seq2 = [[[1,2,3],[4,5,6,7]],[[8,7,0,6,5],[1,2,3,4,5,6,7,8]],[[2,2,3,0,4,5],[4,5]]]
+U = 3 #nb of user
+T = 2 #nb of paniers (orders_id)
+C = 8 #nb of categories (department_id)
+X = padding(seq2,U,T,C)
+#print(X)
+X = one_hot_post_padding(X,15)
+#print('\n','_________','\n')
+#print(X)

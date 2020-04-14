@@ -2,43 +2,33 @@
 # coding: utf-8
 
 from import_data import run_import_data
-from preprocessing import preprocess_for_padding
+from preprocessing import preprocess_for_padding, padding, one_hot_post_padding
 
 import pandas as pd
 
+### Import des Data ###
+
+''' Permet de run l'import et de recuperer fichier corect pour le preprocessing.
+nombre de user et nom du fichier est a mettre en parametre '''
 run_import_data(10, 'data/merge_df.csv')
-# Permet de run l'import et de recuperer fichier corect pour le preprocessing
-# nombre de user et nom du fichier est a mettre en parametre
 
 data = pd.read_csv('data/merge_df.csv')
 
+### Preprocessing ###
+
+''' Permet d'avoir une liste de liste de lites pour le padding.
+dataframe a mettre en parametre '''
 L = preprocess_for_padding(data)
 #print(L)
 #print(len(L))
 
-#import keras
-import numpy as np
-from keras.preprocessing.sequence import pad_sequences
+''' Permet de faire le Padding.
+sequence, nb_users, nb_orders and nb_categories a mettre en parametre '''
+X = padding(L,10,2,10)
+#print(X)
 
-# permet d'avoir une liste de liste de lites pour le padding
-#run_preprocess1
-
-seq = [[1,2,3],[4,5,6,7]]
-#print(len(seq))
-s = pad_sequences(seq)
-#print(s)
-
-seq2 = [[[1,2,3],[4,5,6,7]],[[3,9],[8,7,0,6,5]],[[2,2,3,0,4,5],[4,5]]]
-
-U = 3 #nb of user
-T = 3 #nb of paniers (orders_id)
-C = 8 #nb of categories (department_id)
-
-X = np.zeros((3,2,8))
-for i in range(len(seq2)):
-    xi = pad_sequences(seq2[i], maxlen=C, padding='pre', truncating='pre', value=0)
-    t = min(T,xi.shape[0])
-    xi = xi[:t]
-    X[i] = xi
-
-print(X)
+''' Permet de faire le Onehot apres le padding.
+matrix after padding and max_categories_found a mettre en parametre '''
+X_onehot = one_hot_post_padding(X,21)
+#print('\n','_________','\n')
+#print(X_onehot)
