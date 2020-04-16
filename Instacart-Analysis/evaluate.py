@@ -39,4 +39,4 @@ def evaluation(x, y, nb_categories, K_topscore, model):
     #conf_mat = confusion_matrix(y,p)
     #print(p_acc)
 
-    return p, p_acc #, conf_ma
+    return p #,p_acc ,conf_ma

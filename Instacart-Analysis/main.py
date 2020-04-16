@@ -13,9 +13,9 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 
 ''' Permet de run l'import et de recuperer fichier corect pour le preprocessing.
 nombre de user et nom du fichier est a mettre en parametre '''
-nb_users = 1000
+nb_users = 10000
 nb_categories = 10
-#run_import_data(nb_users, nb_categories, 'data/merge_df.csv')
+run_import_data(nb_users, nb_categories, 'data/merge_df.csv')
 
 data = pd.read_csv('data/merge_df.csv')
 
@@ -29,9 +29,9 @@ L = preprocess_for_padding(data)
 
 ''' Permet de faire le Padding.
 sequence, nb_users, nb_orders and nb_categories a mettre en parametre '''
-nb_orders = 5
+nb_orders = 10
 M = padding(L,nb_users,nb_orders,nb_categories)
-#print(M)
+print(M)
 
 ''' Permet de faire le Onehot apres le padding.
 matrix after padding and max_categories_found a mettre en parametre '''
@@ -67,8 +67,8 @@ Puis ouvrir l'url que nous renvoie le terminal (http://localhost:6006/). '''
 ## EVALUATION ##
 '''Permet d'evaluer notre modele
 x_test,y_test,nb_categories,les K top score and model en parametre. '''
-K_topscore = 7
-p, p_acc = evaluation(x_test,y_test,nb_categories,K_topscore, model)
+K_topscore = 5
+p = evaluation(x_test,y_test,nb_categories,K_topscore, model)
 
-print(p_acc)
+#print(p_acc)
 #print(conf_mat)
