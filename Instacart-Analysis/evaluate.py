@@ -9,14 +9,14 @@ liste des fonctions :
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc
 
 
-def evaluation(x, y, nb_categories, K, model):
+def evaluation(x, y, nb_categories, K_topscore, model):
     '''
     fonction qui permet de tester l'apprentissage de notre modele "model".
     elle realise d'abord une prediction p des data x.
     ensuite elle renvoie la matrice de confusion et la precision de notre modele.
     en comparant p et y
     Input :
-        K les top score
+        K_topscore les top score
     '''
     p = model.predict(x)
 
@@ -29,13 +29,14 @@ def evaluation(x, y, nb_categories, K, model):
     for p_order in p:
 
         for c in range(t):
-            if p_order[c] in [t-k for k in range(K)]:
+            if p_order[c] in [t-k for k in range(K_topscore)]:
                 p_order[c] = 1
             else:
                 p_order[c] = 0
         #print(p_order)
 
-    #p_acc = accuracy_score(y,p)
+    p_acc = accuracy_score(y,p)
     #conf_mat = confusion_matrix(y,p)
+    #print(p_acc)
 
-    return p #p_acc, conf_mat
+    return p, p_acc #, conf_ma

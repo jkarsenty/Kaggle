@@ -66,7 +66,7 @@ def padding(sequence, nb_users, nb_orders, nb_categories):
     for i in range(len(sequence)):
         #print(i)
         xi = pad_sequences(sequence[i], maxlen=nb_categories, padding='pre', truncating='pre', value=0)
-        print(xi)
+        #print(xi)
         t = min(nb_orders,xi.shape[0])
         xi = xi[:t]
         #print(xi)

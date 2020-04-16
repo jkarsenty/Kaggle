@@ -13,7 +13,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 
 ''' Permet de run l'import et de recuperer fichier corect pour le preprocessing.
 nombre de user et nom du fichier est a mettre en parametre '''
-nb_users = 10
+nb_users = 1000
 nb_categories = 10
 #run_import_data(nb_users, nb_categories, 'data/merge_df.csv')
 
@@ -67,6 +67,8 @@ Puis ouvrir l'url que nous renvoie le terminal (http://localhost:6006/). '''
 ## EVALUATION ##
 '''Permet d'evaluer notre modele
 x_test,y_test,nb_categories,les K top score and model en parametre. '''
-K_topscore = 3
-p = evaluation(x_test,y_test,nb_categories,K_topscore, model)
-print(p)
+K_topscore = 7
+p, p_acc = evaluation(x_test,y_test,nb_categories,K_topscore, model)
+
+print(p_acc)
+#print(conf_mat)
