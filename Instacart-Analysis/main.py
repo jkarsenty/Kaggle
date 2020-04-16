@@ -29,8 +29,9 @@ L = preprocess_for_padding(data)
 
 ''' Permet de faire le Padding.
 sequence, nb_users, nb_orders and nb_categories a mettre en parametre '''
-M = padding(L,nb_users,2,6)
-print(M)
+nb_orders = 5
+M = padding(L,nb_users,nb_orders,nb_categories)
+#print(M)
 
 ''' Permet de faire le Onehot apres le padding.
 matrix after padding and max_categories_found a mettre en parametre '''
@@ -41,6 +42,9 @@ X_onehot = one_hot_post_padding(M,nb_categories)
 ### Choix Dataset ###
 Y = X_onehot[:,-1,:]
 X = X_onehot[:,:-1,:]
+
+#print(X)
+#print(Y)
 
 x_train, y_train, x_test, y_test = split_dataset(X,Y,0.8)
 print('xtrain :', x_train.shape)
@@ -63,10 +67,6 @@ Puis ouvrir l'url que nous renvoie le terminal (http://localhost:6006/). '''
 ## EVALUATION ##
 '''Permet d'evaluer notre modele
 x_test,y_test,nb_categories,les K top score and model en parametre. '''
-p = evaluation(x_test,y_test,nb_categories,3, model)
+K_topscore = 3
+p = evaluation(x_test,y_test,nb_categories,K_topscore, model)
 print(p)
-
-
-"""
-Changer le preprocessing avec l'indice pour les orders
-Finaliser l'evaluation """

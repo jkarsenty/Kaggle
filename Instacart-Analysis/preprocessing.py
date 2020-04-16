@@ -66,11 +66,12 @@ def padding(sequence, nb_users, nb_orders, nb_categories):
     for i in range(len(sequence)):
         #print(i)
         xi = pad_sequences(sequence[i], maxlen=nb_categories, padding='pre', truncating='pre', value=0)
-        #print(xi)
+        print(xi)
         t = min(nb_orders,xi.shape[0])
         xi = xi[:t]
         #print(xi)
-        X[i] = xi
+        k = nb_orders - t #permet de bien assigne le padding dans l'ordre
+        X[i][k:] = xi
 
     return X
 
@@ -115,12 +116,13 @@ def one_hot_post_padding(matrix, max_categories_found,):
 
 #### Test functions ###
 
-#seq2 = [[[1,2,3],[4,5,6,7]],[[8,7,0,6,5],[1,2,3,4,5,6,7,8]],[[2,2,3,0,4,5],[4,5]]]
+#seq2 = [[[1,2,3],[4,5,6,7],[8,7,0,6,5]],[[1,2,3,4,5,6,7,8],[1,2,4]],[[2,2,3,0,4,5],[4,5]]]
 #U = 3 #nb of user
-#T = 2 #nb of paniers (orders_id)
+#T = 5 #nb of paniers (orders_id)
 #C = 8 #nb of categories (department_id)
 #X = padding(seq2,U,T,C)
 #print(X)
+
 #X = one_hot_post_padding(X,15)
 #print('\n','_________','\n')
 
