@@ -48,8 +48,10 @@ def lstm_model(outp, inpt = (2,22)):
 
     h = LSTM(64, activation = 'tanh')(x) #activation par default est tanh
     #shape de sortie (*,64)
+    h1 = Dense(64)(h)
+    h2  = Dense (32)(h1)
 
-    y = Dense(outp, activation='softmax')(h) #to have the right output size
+    y = Dense(outp, activation='softmax')(h2) #to have the right output size
 
     return Model(inputs=x, outputs=y)
 

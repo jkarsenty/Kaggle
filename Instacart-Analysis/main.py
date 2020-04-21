@@ -15,7 +15,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 nombre de user et nom du fichier est a mettre en parametre '''
 nb_users = 10000
 nb_categories = 10
-run_import_data(nb_users, nb_categories, 'data/merge_df.csv')
+#run_import_data(nb_users, nb_categories, 'data/merge_df.csv')
 
 data = pd.read_csv('data/merge_df.csv')
 
