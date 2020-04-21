@@ -3,4 +3,4 @@
 
 from import_data import importation
 
-data = importation("data\\train.csv")
+data = importation("data/train.csv")
