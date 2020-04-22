@@ -7,6 +7,7 @@ import of the data and 1rst preprocessing to have a correct dataframe.
 '''
 
 import pandas as pd
+import json
 
 def importation(pathToFile, sep = ","):
 
@@ -16,3 +17,14 @@ def importation(pathToFile, sep = ","):
     '''
     df = pd.read_csv(pathToFile, sep = sep)
     return df
+
+def export_df(dataframe,path_name):
+    '''
+    export of a dataframe into a csv file
+    '''
+    dataframe.to_csv (path_name, index = False, header=True)
+    return
+
+def export_json(dictionary, path_name):
+    with open(path_name, 'w') as fp:
+        json.dump(dictionary, fp, indent=1)

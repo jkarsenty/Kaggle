@@ -1,7 +1,7 @@
 """main file"""
 
 
-from import_data import importation
+from import_data import *
 from preprocessing import *
 
 import pandas as pd
@@ -26,5 +26,6 @@ raw_text = lower_txt(tweets)
 vocabulary = build_vocabulary(raw_text)
 print(len(vocabulary))
 
+export_json(vocabulary, 'vocab.json')
 #vocabulary = {w:c for w,c in vocabulary.items() if c>50}
 #print(len(vocabulary))
