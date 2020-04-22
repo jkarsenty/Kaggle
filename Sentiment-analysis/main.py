@@ -26,6 +26,6 @@ raw_text = lower_txt(tweets)
 vocabulary = build_vocabulary(raw_text)
 print(len(vocabulary))
 
-export_json(vocabulary, 'vocab.json')
+export_json(vocabulary, 'vocab.json') 
 #vocabulary = {w:c for w,c in vocabulary.items() if c>50}
 #print(len(vocabulary))
