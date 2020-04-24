@@ -17,7 +17,7 @@ def lower_txt(text_list):
     for d in text_list:
         d = str(d).lower()
 
-    return text_list
+    return list(text_list)
 
 def lower_df_txt(dataframe, column_name):
     '''
@@ -47,6 +47,7 @@ def build_vocabulary(text_list):
             except:
                 vocabulary[w] = 1
     return vocabulary
+
 
 def bag_of_word(string, word_to_idx):
     '''
