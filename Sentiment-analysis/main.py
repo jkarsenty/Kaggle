@@ -3,10 +3,11 @@
 
 from import_data import *
 from preprocessing import *
+from embedPreprocess import *
 
 import pandas as pd
 import numpy as np
-from nltk.tokenize import word_tokenize
+
 
 data = importation("data/train.csv")
 print(data.columns)
@@ -21,68 +22,43 @@ tweets = np.array(df1.text)
 
 ## to lower
 raw_text = lower_txt(tweets)
-print('nombre de tweets: ', raw_text)
+print('nombre de tweets: ', len(raw_text))
 
 ## build vocabulary dictionnary
 vocabulary = build_vocabulary(raw_text)
-print('nombre de mot distincts: ', len(vocabulary))
-export_json(vocabulary, 'vocab.json')
+#print(len(vocabulary))
+vocabulary = {w:c for w,c in vocabulary.items() if c>70}
+print('taille du vocabulary: ', len(vocabulary))
+
+export_json(vocabulary, 'vocabulary.json')
 
 word_to_idx = {w:i for i,w in enumerate(vocabulary)}
 #print(len(word_to_idx))
+export_json(word_to_idx, 'word_to_idx.json')
 
-export_json(word_to_idx, 'wTi.json')
 
-def tokenize_matrix(matrix):
-    ''' from a matrix of tweet give a matrix of list of words (each te)'''
-    newMatrix = matrix
-    for i in range(len(matrix)):
-        #print(matrix[i])
-        l = word_tokenize(str(matrix[i]))
-        #print(l)
-        newMatrix[i] = l
+''' on va faire correspondre nos indices de word_to_idx a ceux de l'embedding'''
 
-    return newMatrix
+glove_filename = 'embedding_matrix/glove.twitter.27B.50d.txt'
+path_to_json = 'gloveWordtoIdx.json'
 
-mTokenize = tokenize_matrix(raw_text)
-#print(mTokenize[:5])
-print(len(mTokenize))
 
-def preprocess_for_padding(matrix):
-    '''
-    Give us the list of list of list for the pad_sequences.
-    But 1rst doing a onehot of all the categories (department_id).
-    intput:
-        dataframe with all the features
-    output:
-        list L for the padding
-    '''
+word_to_index_glove, index_to_embedding_array = export_glove_word_to_index(glove_filename,path_to_json)
+#word_to_index_glove = importation(path_to_json, format = 'json')
 
-    data = dataframe
+word_to_index_embedding = index_mapping_embedding(word_to_idx,word_to_index_glove)
+#word_to_index_embedding c'est le dictionnaire avec les bons indices.
 
-    L =[] #liste de liste de liste: liste client en liste d'orders en liste de department
-    for client in data.groupby('user_id'):
-        #print(client,'\n')
-        client_id = client[0]
-        client_df = client[1]
+''' on a notre index on passe maintenant a la tokenisation et padding'''
 
-        sequences_client = [] #liste de listes department par order pour chaque user
-        for order in client_df.groupby('order_id'):
-            #print(client_id,': ',order[0],'\n')
-            order_id = order[0]
-            order_df = order[1]
-            #print(order[1],'\n')
-            department_ids = list(order_df['department_id'])
-            #print(department_ids,'\n')
+mTokenize = tokenize_matrix(raw_text[:10])
+print(mTokenize[:5])
+#print(len(mTokenize))
 
-            sequences_client.append(department_ids)
-        #print(sequences_client)
-        L.append(sequences_client)
+mTokenizeInteger = from_word_to_integer(mTokenize,word_to_index_embedding)
+print(mTokenizeInteger[:5])
 
-    #print(L)
-    #print(len(L))
-    return L
-
+'''on fait le padding'''
 def max_size(matrix):
     '''from list of list give me the size of my longest list'''
     maxSize = 0
@@ -94,8 +70,11 @@ def max_size(matrix):
             maxSize = maxSize
         #print(maxSize,sizeList)
     return maxSize
-maxSize = max_size(mTokenize)
+maxSize = max_size(mTokenizeInteger)
+print(maxSize)
 
+
+''' padding a adapter et modifier'''
 from keras.preprocessing.sequence import pad_sequences
 def padding(mSequence, sizeSequenceMax):
     '''
@@ -118,5 +97,5 @@ def padding(mSequence, sizeSequenceMax):
 
     return X
 
-M = padding(mTokenize,maxSize)
-print(M[:10])
+#M = padding(mTokenizeInteger,maxSize)
+#print(M[:5])

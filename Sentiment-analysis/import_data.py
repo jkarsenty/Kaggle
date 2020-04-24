@@ -9,14 +9,23 @@ import of the data and 1rst preprocessing to have a correct dataframe.
 import pandas as pd
 import json
 
-def importation(pathToFile, sep = ","):
+def importation(pathToFile, format = 'csv', sep = ","):
 
     '''
     function for importation of the data from the data file into the variables
     depending on the extension
     '''
-    df = pd.read_csv(pathToFile, sep = sep)
-    return df
+    print('Importation en cours ...')
+    if format == 'csv':
+        df = pd.read_csv(pathToFile, sep = sep)
+        print('Importation done')
+        return df
+
+    elif format == 'json':
+        with open(pathToFile) as json_file:
+                dict = json.load(json_file)
+                print('Importation done')
+                return dict
 
 def export_df(dataframe,path_name):
     '''

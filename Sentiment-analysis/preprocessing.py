@@ -6,6 +6,7 @@ functions in order to build our vocabulary before the model.
 -
 """
 
+from nltk.tokenize import word_tokenize
 
 def lower_txt(text_list):
     '''
@@ -47,6 +48,17 @@ def build_vocabulary(text_list):
             except:
                 vocabulary[w] = 1
     return vocabulary
+
+def tokenize_matrix(matrix):
+    ''' from a matrix of tweet give a matrix of list of words (each te)'''
+    newMatrix = matrix
+    for i in range(len(matrix)):
+        #print(matrix[i])
+        l = word_tokenize(str(matrix[i]))
+        #print(l)
+        newMatrix[i] = l
+    print('Tokenisation done')
+    return newMatrix
 
 def bag_of_word(string, word_to_idx):
     '''
