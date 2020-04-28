@@ -36,6 +36,36 @@ def padding(mSequence, sizeSequenceMax):
 
     return X
 
+def one_hot_post_padding(matrix, maxSize):
+    '''
+    Make a one hot matrix X after a padding
+    Input:
+        matrix after the padding
+        maxSize = size of the longest tweet (size of each tweet)
+    Output:
+        a one hot matrix as an array
+    '''
+
+    X_onehot = [] #our new onehot list of list of list in output
+
+    for tweets in matrix:
+        '''for each tweets'''
+        T = np.zeros(maxSize+1) #onehot of each tweets
+
+        for word in tweets:
+            '''for each word in each tweet'''
+
+            t = int(word) #transform word from float to integer
+
+            if t == 0:
+                T[t] = 0
+            else:
+                T[t] = 1
+
+        X_onehot.append(T) #append each tweet in one list
+
+    return np.array(X_onehot)
+
 
 ## Test fonctions ##
 
@@ -46,8 +76,11 @@ def padding(mSequence, sizeSequenceMax):
 
 #mSequence = mTokenizeInteger
 #sizeSequenceMax = maxSize
-#print(len(mTokenizeInteger)
-#nb_tweet = 5
-#X = padding(mSequence, nb_tweet, sizeSequenceMax)
+#print(len(mTokenizeInteger))
+#X = padding(mSequence,sizeSequenceMax)
 #print(X)
 #print(X.shape)
+
+#matrix = X
+#X_onehot= one_hot_post_padding(matrix, maxSize)
+#print('\n', X_onehot)

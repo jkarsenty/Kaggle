@@ -1,6 +1,5 @@
 """main file"""
 
-
 from import_data import *
 from preprocessing import *
 from embedPreprocess import *
@@ -9,7 +8,6 @@ from paddingPreprocess import *
 import pandas as pd
 import numpy as np
 
-
 ############################
 ### importation des data ###
 ############################
@@ -17,7 +15,6 @@ import numpy as np
 data = importation("data/train.csv")
 print(data.columns)
 #print(data['text'].head())
-
 
 #####################
 ### preprocessing ###
@@ -57,8 +54,8 @@ def give_final_word_to_index(vocabulary, path_to_merge_indexes, load_glove_bool=
     Input:
         vocabulary: dict given by the build_vocabulary function
         path_to_merge_indexes: string name of the export file .json
-        load_glove_bool: Bool for the test of the preprocess to speed the importation
-        need_index_to_embedding_array: Bool to set on True if we need the embedding matrix
+        load_glove_bool: Bool to test the preprocess (speed the importation)
+        need_index_to_embedding_array: Bool set on True if need the Glove array
     Output:
         export a .json file named path_to_merge_indexes
         '''
@@ -93,7 +90,7 @@ def give_final_word_to_index(vocabulary, path_to_merge_indexes, load_glove_bool=
     else:
         return
 
-''' pour recuperer le fichier "path_to_merge_indexes.json" du word_to_idx final,
+'''Pour recuperer le fichier "path_to_merge_indexes.json" du word_to_idx final,
 mettre le Bool "run_give_final_word_to_index" sur True'''
 run_give_final_word_to_index = False
 load_glove_bool = True # True if glove already loaded
@@ -125,11 +122,13 @@ print(maxSize)
 M = padding(mTokenizeInteger, maxSize)
 print('M : shape = ',M.shape,'\n', M[:5])
 
+#X_onehot = one_hot_post_padding(M, maxSize)
+
 ##############################################
 ### Affectation des datasets train et test ###
 ##############################################
 
- 
+
 #############
 ### Model ###
 #############
