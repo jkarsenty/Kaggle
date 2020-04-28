@@ -15,7 +15,7 @@ def importation(pathToFile, format = 'csv', sep = ","):
     function for importation of the data from the data file into the variables
     depending on the extension
     '''
-    print('Importation en cours ...')
+    print('Importation ' + pathToFile + ' en cours ...')
     if format == 'csv':
         df = pd.read_csv(pathToFile, sep = sep)
         print('Importation done')
@@ -24,7 +24,7 @@ def importation(pathToFile, format = 'csv', sep = ","):
     elif format == 'json':
         with open(pathToFile) as json_file:
                 dict = json.load(json_file)
-                print('Importation done')
+                print('Importation '+ pathToFile +' done')
                 return dict
 
 def export_df(dataframe,path_name):
