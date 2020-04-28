@@ -1,3 +1,13 @@
+'''
+Step 3
+Functions for the 2nd preprocessing.
+Functions to build our word to index from the Glove embedding matrix.
+- load_glove_embedding(glove_filename, with_indexes=True)
+- export_glove_word_to_index(glove_filename,path_to_json = 'word_to_idx_glove.json')
+- index_mapping_embedding(word_to_idxA, word_to_idxEmbedding)
+- from_word_to_integer(matrixTokenize, word_to_index_embedding)
+'''
+
 from import_data import export_json
 
 import numpy as np
@@ -51,7 +61,7 @@ def load_glove_embedding(glove_filename, with_indexes=True):
         print("Embedding loaded from disks.")
         return word_to_embedding_dict
 
-def export_glove_word_to_index(glove_filename,path_to_json = 'gloveWordtoIdx.json'):
+def export_glove_word_to_index(glove_filename,path_to_json = 'word_to_idx_glove.json'):
     '''load the embedding, export the glove word_to_index_dict to a json file
     and return word_to_index_dict and the array index_to_embedding_array '''
     word_to_index_dict, index_to_embedding_array = load_glove_embedding(glove_filename, with_indexes=True)
@@ -82,6 +92,7 @@ def index_mapping_embedding(word_to_idxA, word_to_idxEmbedding):
 
 def from_word_to_integer(matrixTokenize, word_to_index_embedding):
     '''from our list of list of words give us a list of list of integer'''
+
     print('Transformation Integer en cours ...')
     mT = []
     dictEmb = word_to_index_embedding

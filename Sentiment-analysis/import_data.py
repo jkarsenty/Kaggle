@@ -1,9 +1,8 @@
 '''
 Step 1
 import of the data and 1rst preprocessing to have a correct dataframe.
-- importation(pathToFile, sep = ",")
-- export_df(dataframe,path_name)
-- run_import_data(nb_user = 5, path = 'data/merge_df.csv')
+- importation(pathToFile, format = 'csv', sep = ",")
+- export_file(variable,path_name,format)
 '''
 
 import pandas as pd
@@ -27,6 +26,23 @@ def importation(pathToFile, format = 'csv', sep = ","):
                 print('Importation '+ pathToFile +' done')
                 return dict
 
+def export_file(variable, path_name, format):
+    '''
+    export a variable into a file of format csv or json
+    '''
+    if format not in ['csv','json']:
+        print('ERROR format')
+
+    else:
+        if format == 'csv':
+            variable.to_csv (path_name, index = False, header=True)
+        elif format == 'json':
+            with open(path_name, 'w') as fp:
+                json.dump(dictionary, fp, indent=1)
+        print('export done into '+ path_name)
+
+    return
+
 def export_df(dataframe,path_name):
     '''
     export of a dataframe into a csv file
@@ -35,5 +51,7 @@ def export_df(dataframe,path_name):
     return
 
 def export_json(dictionary, path_name):
+    '''export a dict into a json file'''
     with open(path_name, 'w') as fp:
         json.dump(dictionary, fp, indent=1)
+    return

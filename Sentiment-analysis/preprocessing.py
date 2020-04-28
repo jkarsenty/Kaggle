@@ -1,9 +1,11 @@
 """
-functions for preprocessing.
+Step 2
+Functions for 1rst preprocessing.
 functions in order to build our vocabulary before the model.
-- lower_txt
-- build_vocabulary
--
+- lower_txt(text_list) or lower_df_txt(dataframe, column_name)
+- build_vocabulary(text_list)
+- tokenize_matrix(matrix)
+- bag_of_word(string, word_to_idx)
 """
 
 from nltk.tokenize import word_tokenize
@@ -50,7 +52,7 @@ def build_vocabulary(text_list):
     return vocabulary
 
 def tokenize_matrix(matrix):
-    ''' from a matrix of tweet give a matrix of list of words (each te)'''
+    ''' from a matrix of tweet give a matrix of list of words (each tweet)'''
     newMatrix = matrix
     for i in range(len(matrix)):
         #print(matrix[i])
@@ -60,6 +62,7 @@ def tokenize_matrix(matrix):
     print('Tokenisation done')
     return newMatrix
 
+#not need if embedding matrix
 def bag_of_word(string, word_to_idx):
     '''
     Input:

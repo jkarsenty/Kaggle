@@ -1,6 +1,15 @@
+''''
+Step 4
+Functions for padding.
+Last preprocessing just before creating of the model.
+- max_size(matrix)
+- padding(mSequence, sizeSequenceMax)
+'''
+
+
+
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
-
 
 def max_size(matrix):
     '''from list of list give me the size of my longest list'''
@@ -13,6 +22,7 @@ def max_size(matrix):
             maxSize = maxSize
         #print(maxSize,sizeList)
     return maxSize
+
 
 def padding(mSequence, sizeSequenceMax):
     '''

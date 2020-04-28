@@ -18,15 +18,17 @@ data = importation("data/train.csv")
 print(data.columns)
 #print(data['text'].head())
 
-'''on va realiser une 1ere classification juste sur le sentiment analysis'''
 
 #####################
 ### preprocessing ###
 #####################
 
+'''on va realiser une 1ere classification juste sur le sentiment analysis'''
 df1 = data.drop('selected_text', axis = 1)
 #print(df1.text.head())
 tweets = np.array(df1.text)
+
+nb_tweet = 10 # nombre de tweet que l'on prend en compte
 
 ## to lower ##
 raw_text = lower_txt(tweets)
@@ -38,11 +40,15 @@ vocabulary = build_vocabulary(raw_text)
 vocabulary = {w:c for w,c in vocabulary.items() if c>70}
 print('taille du vocabulary: ', len(vocabulary))
 
+mTokenize = tokenize_matrix(raw_text[:nb_tweet])
+print(mTokenize[:5])
+#print(len(mTokenize))
 
-#####################################
-### Creation of the word_to_index ###
-#####################################
+###############################
+### Embedding preprocessing ###
+###############################
 
+## Creation of the word_to_index ##
 def give_final_word_to_index(vocabulary, path_to_merge_indexes, load_glove_bool=True, need_index_to_embedding_array=False):
 
     '''From the vocabulary built give us a .json file
@@ -88,38 +94,42 @@ def give_final_word_to_index(vocabulary, path_to_merge_indexes, load_glove_bool=
         return
 
 ''' pour recuperer le fichier "path_to_merge_indexes.json" du word_to_idx final,
-mettre le Bool run_give_final_word_to_index = True'''
-
+mettre le Bool "run_give_final_word_to_index" sur True'''
 run_give_final_word_to_index = False
-path_to_merge_indexes = 'word_to_idx_merged.json'
 load_glove_bool = True # True if glove already loaded
 need_index_to_embedding_array = False # True if we need the Glove embedding matrix
 
+path_to_merge_indexes = 'word_to_idx_merged.json'
 if run_give_final_word_to_index == True:
     give_final_word_to_index(vocabulary,path_to_merge_indexes,load_glove_bool,need_index_to_embedding_array)
 
 word_to_index_merge = importation(path_to_merge_indexes, format = 'json')
 
 
-####################
-### tokenisation ###
-####################
+#####################################################
+### Mapping tokenized matrix to the word_to_index ###
+#####################################################
 
-
-nb_tweet = 10 # nombre de tweet que l'on prend en compte
-
-mTokenize = tokenize_matrix(raw_text[:nb_tweet])
-print(mTokenize[:5])
-#print(len(mTokenize))
-
+# mTokenize is our matrix of tweets, each tweet tokenised into list of word
 mTokenizeInteger = from_word_to_integer(mTokenize,word_to_index_merge)
 print(mTokenizeInteger[:5])
 #print(len(mTokenizeInteger))
 
+###############
+### padding ###
+###############
 
-'''on passe au padding'''
 maxSize = max_size(mTokenizeInteger)
 print(maxSize)
 
 M = padding(mTokenizeInteger, maxSize)
 print('M : shape = ',M.shape,'\n', M[:5])
+
+##############################################
+### Affectation des datasets train et test ###
+##############################################
+
+ 
+#############
+### Model ###
+#############
