@@ -22,19 +22,27 @@ def target_vector(dataframe,y_column_name,integer_value=False):
     Output:
         Y: array of target (integer or initial value depending on what needed)
     '''
-    Y = np.array(dataframe[y_column_name])
+    Y_initial_values = np.array(dataframe[y_column_name])
 
     if integer_value == True:
-        y_unique_values = list(np.unique(Y))
-        #print(len(y_unique_values))
-        #print(Y[:10])
-        for i in range(len(Y)):
-            if len(y_unique_values) <= 3:
-                '''in order to have value in [-1,1] or [-1,0,1]'''
-                Y[i] = y_unique_values.index(Y[i]) - 1
-                
-            else:
-                Y[i] = y_unique_values.index(Y[i])
+        '''if need a onehot vector'''
+        y_unique_values = list(np.unique(Y_initial_values))
+        t = len(y_unique_values)
+        #print(t)
+        Y_onehot = np.zeros((len(Y_initial_values),t)) #vector Y_onehot taille:(len(Y),len(unique_values))
+        #print(Y_onehot.shape)
+
+        for i in range(len(Y_initial_values)):
+            index_in_y_unique_values = y_unique_values.index(Y_initial_values[i])
+            Y_onehot[i][index_in_y_unique_values] = 1
+
+        Y = Y_onehot
+
+    else:
+        '''if keep the initial values of Y'''
+        Y = Y_initial_values
+
+    #print(Y_initial_values),print(Y)
 
     return Y
 

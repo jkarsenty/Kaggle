@@ -52,9 +52,10 @@ print(mTokenize[:5])
 
 #notre matrice qui servira de Y
 Y = target_vector(df1,'sentiment',True)
-Y = np.reshape(Y, (-1,1)) #pour avoir la taille (*,1)
+#Y = np.reshape(Y, (-1,1)) #pour avoir la taille (*,1)
 Y = Y[:nb_tweet]
 #print(Y[:10])
+
 
 #################################
 ## Creation of our word_to_idx ##
@@ -226,8 +227,19 @@ print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
 
 ### Our Model ###
 
-outp = 1 #la categorie de notre tweet
-''' En 1er lieu on va faire un RNN'''
+outp = Y.shape[1] #le nombre de classes nos sentiments
+
+'''
+En 1er lieu on va faire un RNN mais a modifier ensuite
+
+Faire varier les criteres:
+- trainable (dans le fichier train.py )
+- epochs
+- Rajouter des Dense et Dropout (dans le fichier train.py)
+- Mettre un LSTM ?
+_ rajouter un batch_size dans le fit ?
+'''
+
 model = my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
 model.summary()
 

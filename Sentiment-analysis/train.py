@@ -58,7 +58,7 @@ def my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix):
     Output:
         embdLayer: la couche d'Embedding de mon modele
     '''
-    embdLayer = Embedding(voc_dim, EMBEDDING_DIM, weights=[embedding_matrix], trainable=False)
+    embdLayer = Embedding(voc_dim, EMBEDDING_DIM, weights=[embedding_matrix], trainable=True)
     return embdLayer
 
 def my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
