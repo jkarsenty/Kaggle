@@ -15,6 +15,7 @@ import numpy as np
 
 data = importation("data/train.csv")
 print(data.columns)
+#print(data.describe())
 #print(data['text'].head())
 
 #####################
@@ -25,7 +26,7 @@ print(data.columns)
 df1 = data.drop('selected_text', axis = 1)
 #print(df1.text.head())
 
-nb_tweet = 100 # nombre de tweet que l'on prend en compte
+nb_tweet = 10000 # nombre de tweet que l'on prend en compte
 
 #notre matrice qui servira de X
 tweets = np.array(df1.text)
@@ -119,7 +120,7 @@ def give_final_wrdToIdx_embMtx(path_to_word_to_idx, path_to_merge_indexes, path_
     else:
         return
 
-''' Mettre le Bool "run_give_final_wrdToIdx_embMtx" sur True si besoin de:
+''' Mettre le Bool "run_give_final_wrdToIdx_embMtx" sur False si besoin de:
 - recuperer le fichier "path_to_merge_indexes.json" du word_to_idx final.
 - recuperer le fichier "embedding_matrix.npy" de la matrice qui servira de weight
 a l'Embedding dans notre modele
@@ -137,7 +138,7 @@ if need_index_to_embedding_array == True:
 
     if run_give_final_wrdToIdx_embMtx == False:
         '''if embedding_matrix file never been created'''
-        embedding_matrix = give_final_wrdToIdx_embMtx(vocabulary,path_to_merge_indexes,path_to_embedding_matrix,load_glove_bool,need_index_to_embedding_array)
+        embedding_matrix = give_final_wrdToIdx_embMtx(path_to_word_to_idx,path_to_merge_indexes,path_to_embedding_matrix,load_glove_bool,need_index_to_embedding_array)
     else:
         '''if embedding_matrix file already created'''
         embedding_matrix = np.load(path_to_embedding_matrix,allow_pickle=True)
@@ -154,8 +155,19 @@ embedding_matrix_resized= fit_embedding_matrix_to_my_vocab_size(embedding_matrix
 ### Mapping word of the tokenized matrix to the word_to_idx index integer ###
 #############################################################################
 
+'''Set the bool to False if mTokenizeInteger never been created'''
+word_to_integer_bool = False
+path_to_mTokenizeInteger = 'mTokenizeInteger.npy'
+
 # mTokenize is our matrix of tweets, each tweet tokenised into list of word
-mTokenizeInteger = from_word_to_integer(mTokenize,word_to_idx)
+if word_to_integer_bool == False:
+    '''if mTokenizeInteger never been created'''
+    mTokenizeInteger = from_word_to_integer(mTokenize,word_to_idx)
+    np.save(path_to_mTokenizeInteger,mTokenizeInteger)
+else:
+    '''else just need to load it'''
+    mTokenizeInteger = np.load(path_to_mTokenizeInteger,allow_pickle=True)
+
 print(mTokenizeInteger[:5])
 #print(len(mTokenizeInteger))
 
@@ -189,9 +201,9 @@ x_train, y_train, x_test, y_test = split_dataset(M,Y,train_ratio=0.8)
 
 embedding_matrix = np.matrix(embedding_matrix_resized)
 #print('Glove shape:',embedding_matrix.shape)
-voc_dim = len(word_to_idx) #nombre de mots distincts dans mon word
+voc_dim = len(word_to_idx) #nombre de mots distincts dans mon word_to_idx
 #print('voc_dim:',voc_dim)
-EMBEDDING_DIM = embedding_matrix.shape[1]
+EMBEDDING_DIM = embedding_matrix.shape[1] #dim de representation
 #print('EMBEDDING_DIM:',EMBEDDING_DIM)
 MAX_SEQUENCE_LENGTH = maxSize
 #print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
@@ -204,15 +216,3 @@ MAX_SEQUENCE_LENGTH = maxSize
 #print(embdLayer.predict(x_test))
 
 ### Our Model ###
-
-outp = 1 #la categorie de notre tweet
-''' En 1er lieu on va faire un RNN'''
-model = my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
-model.summary()
-
-validation_data = None
-loss_fct = 'binary_crossentropy'
-optimizer = 'adam'
-metrics = ['accuracy']
-epochs = 10
-train_model(x_train,y_train,validation_data, model,loss_fct,optimizer,metrics,epochs)

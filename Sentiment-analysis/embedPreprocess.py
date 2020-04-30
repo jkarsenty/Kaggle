@@ -75,10 +75,11 @@ def index_mapping_embedding(word_to_idxA, word_to_idxEmbedding):
     my_word_to_idx = word_to_idxA
     d1,d2 = my_word_to_idx, word_to_idxEmbedding
 
-    for i,w in enumerate(d1):
+    for w,i in d1.items():
         #print('w: ',w)
         #print('i: ',i)
-        for idx,wrd in enumerate(d2):
+        print('mot:',i)
+        for wrd,idx in d2.items():
             #print('embd: ', wrd,idx)
             if wrd == w:
                  #print('indice: ',idx)
@@ -90,18 +91,18 @@ def index_mapping_embedding(word_to_idxA, word_to_idxEmbedding):
     my_word_to_idx = d1
     return my_word_to_idx
 
-def from_word_to_integer(matrixTokenize, word_to_idx_embedding):
+def from_word_to_integer(matrixTokenize, word_to_idx):
     '''from our list of list of words give us a list of list of integer'''
 
     print('Transformation Integer en cours ...')
     mT = []
-    dictEmb = word_to_idx_embedding
+    dictEmb = word_to_idx
+    KEYS = set(dictEmb.keys()) #cles de nos
+    #print(KEYS)
 
     for i in range(len(matrixTokenize)):
         tweet = []
         for word in matrixTokenize[i]:
-            KEYS = set(dictEmb.keys())
-            #print(KEYS)
             if word in KEYS:
                 word = dictEmb[word] #index du word dans le dict
             else:
