@@ -188,13 +188,13 @@ x_train, y_train, x_test, y_test = split_dataset(M,Y,train_ratio=0.8)
 ### Embedding Layer ###
 
 embedding_matrix = np.matrix(embedding_matrix_resized)
-print('Glove shape:',embedding_matrix.shape)
+#print('Glove shape:',embedding_matrix.shape)
 voc_dim = len(word_to_idx) #nombre de mots distincts dans mon word
-print('voc_dim:',voc_dim)
+#print('voc_dim:',voc_dim)
 EMBEDDING_DIM = embedding_matrix.shape[1]
-print('EMBEDDING_DIM:',EMBEDDING_DIM)
+#print('EMBEDDING_DIM:',EMBEDDING_DIM)
 MAX_SEQUENCE_LENGTH = maxSize
-print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
+#print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
 
 ### Test avec juste un Embedding Model ###
 
@@ -207,7 +207,12 @@ print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
 
 outp = 1 #la categorie de notre tweet
 ''' En 1er lieu on va faire un RNN'''
-#model = my_model(outp, MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix)
-#model.summary()
+model = my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
+model.summary()
 
-#train_model(x_train, y_train, (x_test,y_test), model,'mse','adam',['accuracy'])
+validation_data = None
+loss_fct = 'binary_crossentropy'
+optimizer = 'adam'
+metrics = ['accuracy']
+epochs = 10
+train_model(x_train,y_train,validation_data, model,loss_fct,optimizer,metrics,epochs)

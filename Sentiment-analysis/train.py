@@ -61,7 +61,7 @@ def my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix):
     embdLayer = Embedding(voc_dim, EMBEDDING_DIM, weights=[embedding_matrix], trainable=False)
     return embdLayer
 
-def my_model(outp, MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix):
+def my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
     ''' Fonction qui renvoie mon modele
     Data: en entree shape (*,inpt) et en sortie shape (*, outp) '''
 
