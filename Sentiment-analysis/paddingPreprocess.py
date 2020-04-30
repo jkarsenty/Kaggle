@@ -15,7 +15,8 @@ def max_size(matrix):
     '''from list of list, give the size of the longest list'''
     maxSize = 0
     for l in matrix:
-        sizeList = max(l)
+        #sizeList = len(l) #to give the size max of our sequences
+        sizeList = max(l) #to give the index max in all sequences
         if maxSize < sizeList:
             maxSize = sizeList
         else:
@@ -72,7 +73,7 @@ def one_hot_post_padding(matrix, maxSize):
 #[29, 0, 32, 0, 21, 355], [86, 0, 9, 758, 21, 0], [0, 39, 0, 0, 0, 0, 4, 164, 0, 0, 0, 109, 509, 228, 46, 13, 0, 80, 550, 0]]
 #print(mTokenizeInteger)
 #maxSize = max_size(mTokenizeInteger)
-
+#print(maxSize)
 #mSequence = mTokenizeInteger
 #sizeSequenceMax = maxSize
 #print(len(mTokenizeInteger))

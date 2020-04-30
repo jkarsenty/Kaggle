@@ -9,6 +9,9 @@ from train import *
 import pandas as pd
 import numpy as np
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' #permet d'utiliser le GPU du Mac
+
 ############################
 ### importation des data ###
 ############################
@@ -156,7 +159,7 @@ embedding_matrix_resized= fit_embedding_matrix_to_my_vocab_size(embedding_matrix
 #############################################################################
 
 '''Set the bool to False if mTokenizeInteger never been created'''
-word_to_integer_bool = False
+word_to_integer_bool = True
 path_to_mTokenizeInteger = 'mTokenizeInteger.npy'
 
 # mTokenize is our matrix of tweets, each tweet tokenised into list of word
@@ -175,7 +178,13 @@ print(mTokenizeInteger[:5])
 ### padding ###
 ###############
 
-maxSize = max_size(mTokenizeInteger)
+### Stats sur nos tweets ###
+slen = [len(s) for s in mTokenizeInteger]
+print(np.min(slen),np.max(slen))
+print(np.quantile(slen,q= [0.25,0.5,0.75]))
+
+#maxSize = max_size(mTokenizeInteger) #donne l'indice max
+maxSize = np.max(slen)
 print('max_size: ',maxSize)
 
 M = padding(mTokenizeInteger, maxSize)
@@ -200,13 +209,13 @@ x_train, y_train, x_test, y_test = split_dataset(M,Y,train_ratio=0.8)
 ### Embedding Layer ###
 
 embedding_matrix = np.matrix(embedding_matrix_resized)
-#print('Glove shape:',embedding_matrix.shape)
+print('Glove shape:',embedding_matrix.shape)
 voc_dim = len(word_to_idx) #nombre de mots distincts dans mon word_to_idx
-#print('voc_dim:',voc_dim)
+print('voc_dim:',voc_dim)
 EMBEDDING_DIM = embedding_matrix.shape[1] #dim de representation
-#print('EMBEDDING_DIM:',EMBEDDING_DIM)
-MAX_SEQUENCE_LENGTH = maxSize
-#print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
+print('EMBEDDING_DIM:',EMBEDDING_DIM)
+MAX_SEQUENCE_LENGTH = maxSize #tweet le plus long
+print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
 
 ### Test avec juste un Embedding Model ###
 
@@ -216,3 +225,25 @@ MAX_SEQUENCE_LENGTH = maxSize
 #print(embdLayer.predict(x_test))
 
 ### Our Model ###
+
+outp = 1 #la categorie de notre tweet
+''' En 1er lieu on va faire un RNN'''
+model = my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
+model.summary()
+
+validation_data = (x_test,y_test)
+loss_fct = 'binary_crossentropy'
+optimizer = 'adam'
+metrics = ['accuracy']
+epochs = 10
+train_model(x_train,y_train,validation_data, model,loss_fct,optimizer,metrics,epochs)
+
+###############################
+### Evaluation of the Model ###
+###############################
+
+_,acc = model.evaluate(x_test,y_test)
+print('Accuracy: %.2f' %acc)
+
+y_pred = model.predict(x_test)
+print(y_pred[:3])

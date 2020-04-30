@@ -73,8 +73,8 @@ def my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
 
     x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
     embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
-    rnn = SimpleRNN(MAX_SEQUENCE_LENGTH)(embdLayer)
-    y = Dense(outp, activation="sigmoid")(rnn)
+    rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
+    y = Dense(outp, activation="softmax")(rnn)
 
     return Model(inputs=x, outputs=y)
 
