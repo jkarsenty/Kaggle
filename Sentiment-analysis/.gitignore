@@ -1,0 +1,9 @@
+/data/*.csv
+/data/.DS_Store
+/__pycache__
+/embedding_matrix/*.txt
+
+/.DS_Store
+/test.py
+/*.json
+/*.npy
