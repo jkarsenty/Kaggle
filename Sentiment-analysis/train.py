@@ -1,5 +1,5 @@
 '''
-Step 4
+Step 5
 On definit ici les fonctions utiles pour l'entrainement de nos data.
 Les differents modeles du LSTM.
 - split_dataset(X,Y,ratio)
@@ -37,19 +37,27 @@ def split_dataset(X,Y,train_ratio):
 
     return x_train, y_train, x_test, y_test
 
-def my_embedding_model(MAX_SEQUENCE_LENGTH,EMBEDDING_DIM,voc_dim,embedding_matrix):
+def my_embedding_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix):
     '''Fonction qui prend en entrée:
     Intput:
-        seq_len : la taille des séquences en entrée du modèle
-        EMBEDDING_DIM : la dimension de l'espace de représentation des mots
-        voc_dim : la taille du vocabulaire
+        MAX_SEQUENCE_LENGTH: taille des séquences en entrée du modèle (nbre de mot max d'1 tweet)
+        voc_dim: la taille du vocabulaire (nbre mot distincts)
+        EMBEDDING_DIM: la dimension de l'espace de représentation des mots
     '''
     x = Input(shape=(MAX_SEQUENCE_LENGTH,))
-    w = Embedding(voc_dim, EMBEDDING_DIM, weights=[embedding_matrix], trainable=False)(x)
+    w = Embedding(voc_dim, EMBEDDING_DIM, weights=[embedding_matrix],trainable=False)(x)
 
     return Model(inputs=x, outputs=w)
 
 def my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix):
+    '''Fonction qui prend en entrée:
+    Intput:
+        seq_len: taille des séquences en entrée du modèle (nbre de mot max d'1 tweet)
+        voc_dim: la taille du vocabulaire (nbre mot distincts)
+        EMBEDDING_DIM: la dimension de l'espace de représentation des mots
+    Output:
+        embdLayer: la couche d'Embedding de mon modele
+    '''
     embdLayer = Embedding(voc_dim, EMBEDDING_DIM, weights=[embedding_matrix], trainable=False)
     return embdLayer
 

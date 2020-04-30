@@ -12,7 +12,7 @@ from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 
 def max_size(matrix):
-    '''from list of list give me the size of my longest list'''
+    '''from list of list, give the size of the longest list'''
     maxSize = 0
     for l in matrix:
         sizeList = max(l)
@@ -22,7 +22,6 @@ def max_size(matrix):
             maxSize = maxSize
         #print(maxSize,sizeList)
     return maxSize
-
 
 def padding(mSequence, sizeSequenceMax):
     '''

@@ -30,7 +30,7 @@ def target_vector(dataframe,y_column_name,integer_value=False):
         #print(Y[:10])
         for i in range(len(Y)):
             Y[i] = y_unique_values.index(Y[i])
-            
+
     return Y
 
 
@@ -85,7 +85,7 @@ def tokenize_matrix(matrix):
         newMatrix[i] = l
     print('Tokenisation done')
     return newMatrix
-
+    
 #not need if embedding matrix
 def bag_of_word(string, word_to_idx):
     '''
