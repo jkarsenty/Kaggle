@@ -32,7 +32,7 @@ def padding(mSequence, sizeSequenceMax):
     Output:
         X matrix of padding sequence
     '''
-    X = pad_sequences(mSequence, maxlen=sizeSequenceMax, padding='pre', truncating='pre', value=0)
+    X = pad_sequences(mSequence, maxlen=sizeSequenceMax, padding='post', truncating='pre', value=0)
 
     return X
 

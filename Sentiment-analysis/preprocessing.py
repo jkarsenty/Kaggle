@@ -9,6 +9,30 @@ functions in order to build our vocabulary before the model.
 """
 
 from nltk.tokenize import word_tokenize
+import numpy as np
+
+def target_vector(dataframe,y_column_name,integer_value=False):
+    '''
+    Give us the Y vector of our target depending on the problem
+    Input:
+        dataframe
+        y_column_name: string of our column of target
+        integer_value: Bool if we need integer value (True)
+            or initial value (False)
+    Output:
+        Y: array of target (integer or initial value depending on what needed)
+    '''
+    Y = np.array(dataframe[y_column_name])
+
+    if integer_value == True:
+        y_unique_values = list(np.unique(Y))
+        #print(len(y_unique_values))
+        #print(Y[:10])
+        for i in range(len(Y)):
+            Y[i] = y_unique_values.index(Y[i])
+            
+    return Y
+
 
 def lower_txt(text_list):
     '''
