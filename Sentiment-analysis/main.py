@@ -44,7 +44,7 @@ vocabulary = build_vocabulary(raw_text)
 #print(len(vocabulary))
 #vocabulary = {w:c for w,c in vocabulary.items() if c>70}
 print('taille du vocabulary: ', len(vocabulary))
-export_json(vocabulary, 'vocabulary.json') #on exporte notre vocabulary
+export_json(vocabulary, 'Files_json/vocabulary.json') #on exporte notre vocabulary
 
 mTokenize = tokenize_matrix(raw_text)
 print(mTokenize[:5])
@@ -61,7 +61,7 @@ Y = Y[:nb_tweet]
 ## Creation of our word_to_idx ##
 #################################
 
-path_to_word_to_idx = 'word_to_idx.json'
+path_to_word_to_idx = 'Files_json/word_to_idx.json'
 word_to_idx = {w:i for i,w in enumerate(vocabulary)}
 #print(len(word_to_idx))
 export_json(word_to_idx, path_to_word_to_idx)
@@ -92,7 +92,7 @@ def give_final_wrdToIdx_embMtx(path_to_word_to_idx, path_to_merge_indexes, path_
     ##########################################################################
 
     glove_filename = 'embedding_matrix/glove.twitter.27B.50d.txt'
-    path_to_glove_index = 'word_to_idx_glove.json'
+    path_to_glove_index = 'Files_json/word_to_idx_glove.json'
 
     if load_glove_bool == False:
         '''if glove's never been loaded'''
@@ -134,8 +134,8 @@ run_give_final_wrdToIdx_embMtx = True #True if export files already created
 load_glove_bool = True # True if glove already loaded
 need_index_to_embedding_array = True # True if we need the Glove embedding matrix
 
-path_to_merge_indexes = 'word_to_idx_merged.json'
-path_to_embedding_matrix = 'embedding_matrix.npy'
+path_to_merge_indexes = 'Files_json/word_to_idx_merged.json'
+path_to_embedding_matrix = 'Files_array/embedding_matrix.npy'
 
 if need_index_to_embedding_array == True:
     '''if need the embedding_matrix'''
@@ -161,7 +161,7 @@ embedding_matrix_resized= fit_embedding_matrix_to_my_vocab_size(embedding_matrix
 
 '''Set the bool to False if mTokenizeInteger never been created'''
 word_to_integer_bool = True
-path_to_mTokenizeInteger = 'mTokenizeInteger.npy'
+path_to_mTokenizeInteger = 'Files_array/mTokenizeInteger.npy'
 
 # mTokenize is our matrix of tweets, each tweet tokenised into list of word
 if word_to_integer_bool == False:
@@ -240,22 +240,30 @@ Faire varier les criteres:
 _ rajouter un batch_size dans le fit ?
 '''
 
-model = my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
+model = my_model1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
 model.summary()
 
 validation_data = (x_test,y_test)
-loss_fct = 'binary_crossentropy'
+loss_fct = 'categorical_crossentropy'
 optimizer = 'adam'
 metrics = ['accuracy']
-epochs = 10
+epochs = 3
 train_model(x_train,y_train,validation_data, model,loss_fct,optimizer,metrics,epochs)
 
 ###############################
 ### Evaluation of the Model ###
 ###############################
 
-_,acc = model.evaluate(x_test,y_test)
-print('Accuracy: %.2f' %acc)
+from sklearn.metrics import accuracy_score, confusion_matrix
+#_,acc = model.evaluate(x_test,y_test)
+#print('Accuracy: %.2f' %acc)
 
-y_pred = model.predict(x_test)
-print(y_pred[:3])
+p_test = model.predict(x_test)
+y_test = y_test.argmax(axis = 1)
+p_test = p_test.argmax(axis = 1)
+print(y_test,p_test)
+p_acc = accuracy_score(y_test,p_test)
+conf_mat = confusion_matrix(y_test,p_test)
+
+print('acc:\n',p_acc)
+print('conf_mat:\n',conf_mat)

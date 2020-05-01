@@ -8,7 +8,7 @@ Les differents modeles du LSTM.
 - train_model(xtrain, ytrain, validation_data, model,loss_fct, optimizer, metrics, epochs=1)
 '''
 
-from keras.layers import Input, Dense, LSTM, SimpleRNN, Embedding
+from keras.layers import Input, Dense, LSTM, SimpleRNN, Embedding, Flatten, Dropout
 from keras.models import Model
 from keras.callbacks import TensorBoard, EarlyStopping, ModelCheckpoint
 
@@ -61,7 +61,7 @@ def my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix):
     embdLayer = Embedding(voc_dim, EMBEDDING_DIM, weights=[embedding_matrix], trainable=True)
     return embdLayer
 
-def my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+def my_model1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
     ''' Fonction qui renvoie mon modele
     Data: en entree shape (*,inpt) et en sortie shape (*, outp) '''
 
@@ -75,6 +75,20 @@ def my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
     embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
     rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
     y = Dense(outp, activation="softmax")(rnn)
+
+    return Model(inputs=x, outputs=y)
+
+def my_model2(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp) '''
+
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
+    h1 = LSTM(128, return_sequences = True)(embdLayer)
+    d1 = Dropout(0.5)(h1)
+    h2 = LSTM(128)(d1)
+    d2 = Dropout(0.5)(h2)
+    y = Dense(outp, activation="softmax")(d2)
 
     return Model(inputs=x, outputs=y)
 
