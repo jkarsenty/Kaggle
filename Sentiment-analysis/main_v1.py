@@ -125,21 +125,64 @@ assert x_train.shape[0] == y_train.shape[0]
 
 print('Shape of validation set:',x_validate.shape)
 
+#######################
+### Glove Embedding ###
+#######################
+
+use_glove_embedding_matrix = True
+GLOVE_DIM = 50
+NB_WORDS = 10000
+glove_folder = 'embedding_matrix'
+glove_filename = 'glove.twitter.27B.50d.txt'
+glove_path = glove_folder+'/'+glove_filename
+
+if use_glove_embedding_matrix == True:
+    word_to_idx_glove,embedding_matrix = run_use_glove(GLOVE_DIM,glove_path,NB_WORDS,tokenizer=tk)
+
+## test about Glove ##
+#my_words = ['chocolate','fun']
+#for w in my_words:
+#    if w in word_to_idx_glove.keys():
+#        r = word_to_idx_glove[w]
+#        print('The word {} found the dictionary is represent as {}'.format(w,r))
+
 #############
 ### Model ###
 #############
 
 ### Our Multiclass Models ###
 
-MAX_SEQUENCE_LENGTH = maxSize
-voc_dim = 10000 # = NB_WORDS
-EMBEDDING_DIM = 20 #dim de representation
-outp = Y.shape[1] #le nombre de classes nos sentiments (binary)
-print(outp)
+if use_glove_embedding_matrix == False:
+    '''With keras Embedding layer'''
 
+    MAX_SEQUENCE_LENGTH = maxSize #tweet le plus long
+    print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
+    voc_dim = NB_WORDS #nombre de mots distincts ie:= NB_WORDS = embedding_matrix.shape[0]
+    print('voc_dim:',voc_dim)
+    EMBEDDING_DIM = 26 #dim de representation
+    print('EMBEDDING_DIM:',EMBEDDING_DIM)
+    outp = Y.shape[1] #le nombre de classes nos sentiments
+    print(outp)
 
-## With keras Embedding layer ##
-model = my_model0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp)
+    ## my model ##
+    model = my_model0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp)
+
+else:
+    '''With Glove Embedding'''
+    print('Glove shape:',embedding_matrix.shape)
+
+    MAX_SEQUENCE_LENGTH = maxSize #tweet le plus long
+    print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
+    voc_dim = embedding_matrix.shape[0] #nombre de mots distincts ie:= NB_WORDS = embedding_matrix.shape[0]
+    print('voc_dim:',voc_dim)
+    EMBEDDING_DIM = embedding_matrix.shape[1] #dim de representation
+    print('EMBEDDING_DIM:',EMBEDDING_DIM)
+    outp = Y.shape[1] #le nombre de classes nos sentiments
+    print(outp)
+
+    ## my model ##
+    model = my_model1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
+
 model.summary()
 
 ## Parameters of the Compile & Fit ##
@@ -147,7 +190,7 @@ validation_data = (x_validate,y_validate)
 loss_fct = 'categorical_crossentropy'
 optimizer = 'adam'
 metrics = ['accuracy']
-epochs = 10
+epochs = 50
 
 model_history = train_model(x_train,y_train,validation_data, model,loss_fct,optimizer,metrics,epochs)
 print(model_history.history['accuracy'][-1])

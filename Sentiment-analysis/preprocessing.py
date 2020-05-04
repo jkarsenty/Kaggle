@@ -26,7 +26,7 @@ def target_vector(dataframe,y_column_name,integer_value=False):
     Output:
         Y: array of target (integer or initial value depending on what needed)
     '''
-    
+
     '''sklearn.preprocessing.LabelEncoder can also be used:
     le = LabelEncoder(), then le.fit_transform() and then to_categorical()'''
 
@@ -93,7 +93,66 @@ def remove_stopwords(input_text):
     whitelist = ["n't", "not", "no"]
     words = input_text.split()
     clean_words = [word for word in words if (word not in stopwords_list or word in whitelist) and len(word) > 1]
-    return " ".join(clean_words)
+    df_column = " ".join(clean_words)
+    return df_column
+
+def tokenize_matrix(matrix,tokenizer=0,NB_WORDS=10000):
+    ''' From a matrix of tweet give a matrix of list of words (each tweet)
+    tokenizer: 0: split, 1: nltk word_tokenize, 2: nltk TweetTokenizer class
+    3: keras.preprocessing Tokenizer with use of NB_WORDS most frequent words.
+    '''
+    print('Tokenisation en cours ...')
+
+    if tokenizer == 3:
+        '''tokenize our matrix & retrun the tokenizer'''
+        print('NB_WORD:',NB_WORDS)
+        tk = Tokenizer(num_words=NB_WORDS,
+        filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',
+        lower=True, split=" ")
+        tk.fit_on_texts(matrix)
+        #newMatrix = tk.texts_to_sequences(matrix)
+
+        #newMatrix = matrix.copy()
+        #for i in range(len(matrix)):
+        #    tokenize_tweet = np.array(tk.texts_to_sequences(matrix))
+            #print(tokenize_tweet)
+            #print(newMatrix[i])
+        #    newMatrix[i] = []
+        #    for mot in tokenize_tweet:
+        #        #print(mot)
+        #        newMatrix[i].append(mot)
+
+        print('Tokenisation done')
+        return tk
+
+    else:
+        '''tokenize our matrix'''
+        newMatrix = matrix.copy()
+        for i in range(len(matrix)):
+            #print(matrix[i])
+            if tokenizer == 0:
+                '''split by " " '''
+                #tokenize_tweet = re.split("[,;\ ]",matrix[i])
+                tokenize_tweet = matrix[i].split(" ")
+
+            elif tokenizer == 1:
+                '''split with nltk word_tokenize'''
+                tokenize_tweet = word_tokenize(matrix[i])
+
+            elif tokenizer == 2:
+                '''split with mltk TweetTokenizer class'''
+                tknzr = TweetTokenizer()
+                tokenize_tweet = tknzr.tokenize(str(matrix[i]))
+
+            #print(tokenize_tweet)
+            #print(newMatrix[i])
+            newMatrix[i] = []
+            for mot in tokenize_tweet:
+                #print(mot)
+                newMatrix[i].append(mot)
+
+        print('Tokenisation done')
+        return newMatrix
 
 def build_vocabulary(text_list):
     '''
@@ -194,64 +253,6 @@ def delete_word_in_voc(vocabulary,list_of_delete_word):
     '''from a dict give us a new dict without the word in the list_of_word '''
     new_vocabulary = {w:c for w,c in vocabulary.items() if not w in list_of_delete_word}
     return new_vocabulary
-
-def tokenize_matrix(matrix,tokenizer=0,NB_WORDS=10000):
-    ''' From a matrix of tweet give a matrix of list of words (each tweet)
-    tokenizer: 0: split, 1: nltk word_tokenize, 2: nltk TweetTokenizer class
-    3: keras.preprocessing Tokenizer with use of NB_WORDS most frequent words.
-    '''
-    print('Tokenisation en cours ...')
-
-    if tokenizer == 3:
-        '''tokenize our matrix & retrun the tokenizer'''
-
-        tk = Tokenizer(num_words=NB_WORDS,
-        filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',
-        lower=True, split=" ")
-        tk.fit_on_texts(matrix)
-        #newMatrix = tk.texts_to_sequences(matrix)
-
-        #newMatrix = matrix.copy()
-        #for i in range(len(matrix)):
-        #    tokenize_tweet = np.array(tk.texts_to_sequences(matrix))
-            #print(tokenize_tweet)
-            #print(newMatrix[i])
-        #    newMatrix[i] = []
-        #    for mot in tokenize_tweet:
-        #        #print(mot)
-        #        newMatrix[i].append(mot)
-
-        print('Tokenisation done')
-        return tk
-
-    else:
-        '''tokenize our matrix'''
-        newMatrix = matrix.copy()
-        for i in range(len(matrix)):
-            #print(matrix[i])
-            if tokenizer == 0:
-                '''split by " " '''
-                #tokenize_tweet = re.split("[,;\ ]",matrix[i])
-                tokenize_tweet = matrix[i].split(" ")
-
-            elif tokenizer == 1:
-                '''split with nltk word_tokenize'''
-                tokenize_tweet = word_tokenize(matrix[i])
-
-            elif tokenizer == 2:
-                '''split with mltk TweetTokenizer class'''
-                tknzr = TweetTokenizer()
-                tokenize_tweet = tknzr.tokenize(str(matrix[i]))
-
-            #print(tokenize_tweet)
-            #print(newMatrix[i])
-            newMatrix[i] = []
-            for mot in tokenize_tweet:
-                #print(mot)
-                newMatrix[i].append(mot)
-
-        print('Tokenisation done')
-        return newMatrix
 
 ###########################
 ### Optionnal Functions ###

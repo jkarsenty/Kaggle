@@ -115,7 +115,8 @@ def my_model_binary1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,
     #embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
     embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
     #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
-    y = Dense(outp, activation="sigmoid")(x)
+    f = Flatten()(embdLayer)
+    y = Dense(outp, activation="sigmoid")(f)
 
     return Model(inputs=x, outputs=y)
 
@@ -129,7 +130,8 @@ def my_model1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
     #embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
     embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
     #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
-    y = Dense(outp, activation="softmax")(x)
+    f = Flatten()(embdLayer)
+    y = Dense(outp, activation="softmax")(f)
 
     return Model(inputs=x, outputs=y)
 

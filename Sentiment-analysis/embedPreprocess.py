@@ -13,6 +13,45 @@ from import_data import export_json
 import numpy as np
 from collections import defaultdict
 
+def run_use_glove(GLOVE_DIM,glove_path,NB_WORDS,tokenizer):
+
+    #######################################
+    ### Creation of Glove Word to index ###
+    #######################################
+    print('Creating Glove word to index...')
+    word_to_idx_glove = {}
+
+    with open(glove_path,'r') as glove:
+        for line in glove:
+            '''line is each word in Glove linked to his EMBEDDING_DIM representation'''
+            values = line.split()
+            word = values[0] #the Word
+            representation = np.asarray(values[1:], dtype='float32') #the representation
+            word_to_idx_glove[word] = representation
+
+    print('Glove word to index created')
+
+    ##########################################
+    ### Creation of Glove embedding_matrix ###
+    ##########################################
+    print('Creating Glove embedding_matrix ...')
+    embedding_matrix = np.zeros((NB_WORDS, GLOVE_DIM))
+    tk=tokenizer
+
+    for w, i in tk.word_index.items():
+        # The word_index contains a token for all words of the training data so we need to limit that
+        if i < NB_WORDS:
+            representation = word_to_idx_glove.get(w)
+            # Check if the word from the training data is in the GloVe word_to_idx
+            # Otherwise the vector is kept with only zeros
+            if representation is not None:
+                embedding_matrix[i] = representation
+        else:
+            break
+    print('Glove embedding_matrix created')
+
+    return word_to_idx_glove,embedding_matrix
+
 def load_glove_embedding(glove_filename, with_indexes=True):
     """
     Read a GloVe txt file.
