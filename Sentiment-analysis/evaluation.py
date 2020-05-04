@@ -2,6 +2,30 @@
 '''Step Last'''
 
 from sklearn.metrics import accuracy_score, confusion_matrix
+import matplotlib.pyplot as plt
+
+def eval_metric(history, metric_name):
+    '''
+    Function to evaluate a trained model on a chosen metric_name.
+    Training and validation metric are plotted for each epoch.
+    Input:
+        history: model training history
+        metric_name: loss or accuracy
+    Output:
+        graph with epochs of x-axis and metric on y-axis
+    '''
+    metric = history.history[metric_name]
+    val_metric = history.history['val_'+metric_name]
+
+    NB_EPOCHS = len(metric)
+    e = range(1, NB_EPOCHS + 1)
+
+    plt.plot(e, metric, 'bo', label='Train '+metric_name)
+    plt.plot(e, val_metric, 'b', label='Validation '+metric_name)
+    plt.legend()
+    plt.show()
+
+    return
 
 def evaluation(x, y, model):
     '''
@@ -19,7 +43,6 @@ def evaluation(x, y, model):
     conf_mat = confusion_matrix(y,p)
 
     return p, p_acc, conf_mat
-
 
 def submission(output_file, y_pred):
     '''

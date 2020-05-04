@@ -1,5 +1,5 @@
 '''
-Step 1
+Step 0
 import of the data and 1rst preprocessing to have a correct dataframe.
 - importation(pathToFile, format = 'csv', sep = ",")
 - export_file(variable,path_name,format)

@@ -9,10 +9,12 @@ Les differents modeles du LSTM.
 '''
 
 from keras.layers import Input, Dense, LSTM, SimpleRNN, Embedding, Flatten, Dropout
+from keras.layers import CuDNNLSTM, Bidirectional
 from keras.models import Model
 from keras.callbacks import TensorBoard, EarlyStopping, ModelCheckpoint
+from sklearn.model_selection import train_test_split
 
-def split_dataset(X,Y,train_ratio):
+def split_dataset(X,Y,train_ratio,custom=False):
     ''' Give us the dataset of train and test from the intial dataset
     Input:
         X, Y the initial Dataset as numpy array
@@ -20,22 +22,32 @@ def split_dataset(X,Y,train_ratio):
     Output :
         x_train, y_train, x_test, y_test
     '''
+    if custom == True:
+        t = len(X) #nb_tweet total
 
-    t = len(X) #nb_tweet total
+        n_train = train_ratio * t #le % de data en train
+        if n_train < t-1: #truncature de n_train
+            n_train = round(n_train)
+        else:
+            n_train = int(n_train)
 
-    n_train = train_ratio * t #le % de data en train
-    if n_train < t-1: #truncature de n_train
-        n_train = round(n_train)
+        x_train = X[: n_train]
+        x_test = X[n_train :]
+
+        y_train = Y[: n_train]
+        y_test = Y[n_train :]
+
     else:
-        n_train = int(n_train)
-
-    x_train = X[: n_train]
-    x_test = X[n_train :]
-
-    y_train = Y[: n_train]
-    y_test = Y[n_train :]
+        '''we will use sklearn train_test_split'''
+        test_size = 1-train_ratio
+        random_state = 26 #number (seed) used to random
+        x_train,x_test,y_train,y_test = train_test_split(X,Y,test_size=test_size,random_state=random_state)
 
     return x_train, y_train, x_test, y_test
+
+#################################
+### Embedding Models or Layer ###
+#################################
 
 def my_embedding_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix):
     '''Fonction qui prend en entrée:
@@ -61,36 +73,115 @@ def my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix):
     embdLayer = Embedding(voc_dim, EMBEDDING_DIM, weights=[embedding_matrix], trainable=True)
     return embdLayer
 
-def my_model1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
-    ''' Fonction qui renvoie mon modele
-    Data: en entree shape (*,inpt) et en sortie shape (*, outp) '''
+###################################
+### Models with keras Embedding ###
+###################################
 
-    # en entree du neuronne on aura shape (*,inpt)
-    #x = Input(shape = inpt) #en input on a (*,nb_ordrs,nb_categories)
-    #h = LSTM(64, activation = 'tanh')(x) #activation par default est tanh
-    #shape de sortie (*,64)
-    #y = Dense(outp, activation='softmax')(h2) #to have the right output size
+def my_model_binary0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp=2)
+    Y has binary value so last activation = sigmoid
+    '''
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
+    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
+    f = Flatten()(embdLayer)
+    y = Dense(outp, activation="sigmoid")(f)
+    return Model(inputs=x, outputs=y)
+
+def my_model0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp)
+    Y has multiclass value (3) so last activation = softmax
+    '''
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
+    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
+    f = Flatten()(embdLayer)
+    y = Dense(outp, activation="softmax")(f)
+    return Model(inputs=x, outputs=y)
+
+###################################
+### Models with Glove Embedding ###
+###################################
+
+def my_model_binary1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp = 2)
+    Y has binary value so last activation = sigmoid
+    '''
 
     x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
-    embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
-    rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
-    y = Dense(outp, activation="softmax")(rnn)
+    #embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
+    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
+    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
+    y = Dense(outp, activation="sigmoid")(x)
 
     return Model(inputs=x, outputs=y)
 
-def my_model2(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+def my_model1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp)
+    Y has multiclass value (3) so last activation = softmax
+    '''
+
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    #embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
+    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
+    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
+    y = Dense(outp, activation="softmax")(x)
+
+    return Model(inputs=x, outputs=y)
+
+#####################
+### Others Models ###
+#####################
+
+def my_lstm_model(inpt,outp):
     ''' Fonction qui renvoie mon modele
     Data: en entree shape (*,inpt) et en sortie shape (*, outp) '''
 
-    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    x = Input(shape=inpt) #inpt = (max_seq,nb_cat) pour X = (*,max_seq,nb_cat)
+    #embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
+    h1 = LSTM(64, return_sequences = False)(x)
+    d1 = Dropout(0.25)(h1)
+    h2 = Dense(64)(d1)
+    d2 = Dropout(0.25)(h2)
+    y = Dense(outp, activation="softmax")(d1)
+
+    return Model(inputs=x, outputs=y)
+
+def my_lstm_model0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp) '''
+
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,))
     embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
-    h1 = LSTM(128, return_sequences = True)(embdLayer)
-    d1 = Dropout(0.5)(h1)
-    h2 = LSTM(128)(d1)
-    d2 = Dropout(0.5)(h2)
+    h1 = Bidirectional(LSTM(64, return_sequences = True))(embdLayer)
+    d1 = Dropout(0.25)(h1)
+    h2 = Bidirectional(LSTM(32, return_sequences = False))(d1)
+    d2 = Dropout(0.2)(h2)
+    y = Dense(outp, activation="tanh")(d2)
+
+    return Model(inputs=x, outputs=y)
+
+def my_lstm_model1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp) '''
+
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,))
+    embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
+    h1 = Bidirectional(LSTM(64, return_sequences = True))(embdLayer)
+    d1 = Dropout(0.25)(h1)
+    h2 = Bidirectional(LSTM(32, return_sequences = False))(d1)
+    d2 = Dropout(0.2)(h2)
     y = Dense(outp, activation="softmax")(d2)
 
     return Model(inputs=x, outputs=y)
+
+######################################
+### Training: Compile & Fit Models ###
+######################################
 
 def train_model(xtrain, ytrain, validation_data, model,loss_fct, optimizer, metrics, epochs=1):
     ''' Fonction qui permet d'entrainer notre modele.
@@ -114,12 +205,12 @@ def train_model(xtrain, ytrain, validation_data, model,loss_fct, optimizer, metr
 
     # Argument permettant la visualisation
     callback_1 = TensorBoard(log_dir='trainings/train-conv')
-    callback_2 = EarlyStopping(monitor='val_loss', min_delta=0.005, patience=5)
+    callback_2 = EarlyStopping(monitor='val_loss', min_delta=0.005, patience=10)
     callback_3 = ModelCheckpoint(filepath='weights.hdf5', verbose=0, save_best_only=True)
 
-    Callbacks = [callback_1, callback_2, callback_3]
-
+    #Callbacks = [callback_1, callback_2, callback_3]
+    Callbacks = [callback_2, callback_3]
     #entrainement
-    M.fit(xtrain,ytrain, callbacks = Callbacks, epochs= epochs, validation_data = validation_data)
+    history = M.fit(xtrain,ytrain, callbacks = Callbacks, epochs= epochs, validation_data = validation_data)
 
-    return
+    return history
