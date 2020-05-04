@@ -289,6 +289,7 @@ def bag_of_word(string, word_to_idx):
 
 ## Tests ##
 if (__name__ == "__main__"):
+    
     M = ["I`d have responded, if I were going",
     "Sooo SAD I will miss you here in San Diego!!!",
     "my boss is bullying me..., what interview! leave me alone",

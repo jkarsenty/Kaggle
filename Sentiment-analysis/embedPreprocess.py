@@ -181,16 +181,18 @@ def fit_embedding_matrix_to_my_vocab_size(embedding_matrix,word_to_idx_merged):
 
 ### test de fonctions
 
-#glove_filename= 'embedding_matrix/glove.twitter.27B.50d.txt'
-#word_to_idx_dict, index_to_embedding_array = export_glove_word_to_index(glove_filename)
-#print(index_to_embedding[:10])
+if (__name__ == "__main__"):
 
-#d1={'i':0,'love':1,'you':2}
-#d2={'ho':0,'he':1,'love':2,'me':3,'you':4,'i':5}
-#from import_data import importation
-#d2 = importation('gloveWordtoIdx.json', format = 'json')
-#my_word_to_idx = index_mapping_embedding(d1,d2)
-#print(my_word_to_idx)
+    glove_filename= 'embedding_matrix/glove.twitter.27B.50d.txt'
+    #word_to_idx_dict, index_to_embedding_array = export_glove_word_to_index(glove_filename)
+    #print(index_to_embedding[:10])
 
-#m = [['i','love','love','you'],['i','you','chocolate']]
-#print(from_word_to_integer(m,my_word_to_idx))
+    #d1={'i':0,'love':1,'you':2}
+    #d2={'ho':0,'he':1,'love':2,'me':3,'you':4,'i':5}
+    #from import_data import importation
+    #d2 = importation('gloveWordtoIdx.json', format = 'json')
+    #my_word_to_idx = index_mapping_embedding(d1,d2)
+    #print(my_word_to_idx)
+
+    #m = [['i','love','love','you'],['i','you','chocolate']]
+    #print(from_word_to_integer(m,my_word_to_idx))
