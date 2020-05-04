@@ -1,11 +1,11 @@
 # Twitter Sentiment Analysis  
 
-### main_v0 : Binary Classification on positive and negative sentiment.
+### main_v0.py : Binary Classification (positive and negative) on Twitter Sentiment Analysis.  
 - With keras Embedding: Accuracy of
 - With Glove Embedding: Accuracy of
 
-### main_v1 : same algo but with multiclass classif 3 sentiments.  
+### main_v1.py : Multiclass Classification on Twitter Sentiment Analysis.   
 - With keras Embedding: Accuracy of
 - With Glove Embedding: Accuracy of
 
-### main.py: main file for the Kaggle competition  
+### main.py: Main file for the Kaggle competition  Tweeter Sentiment Analysis
