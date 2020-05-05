@@ -10,7 +10,7 @@ Les differents modeles du LSTM.
 
 from keras.layers import Input, Dense, LSTM, SimpleRNN, Embedding, Flatten, Dropout
 from keras.layers import CuDNNLSTM, Bidirectional
-from keras.models import Model
+from keras.models import Model,Sequential
 from keras.callbacks import TensorBoard, EarlyStopping, ModelCheckpoint
 from sklearn.model_selection import train_test_split
 
@@ -133,21 +133,31 @@ def my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix):
 ### Others Models ###
 #####################
 
-def my_glove_lstm_model_binary(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+def my_glove_lstm_model_binary1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
     '''Fonction qui renvoie mon modele
     Data: en entree shape (*,inpt) et en sortie shape (*, outp = 2)
     Y has binary value so last activation = sigmoid
     Modele avec Glove Embeding'''
 
     x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (max_seq,nb_cat) pour X = (*,max_seq,nb_cat)
-    embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
-    h1 = LSTM(32, return_sequences = False)(x)
+    embdLayer = Embedding(voc_dim,output_dim=EMBEDDING_DIM,weights=[embedding_matrix], trainable=True)(x)
+    h1 = LSTM(units = (EMBEDDING_DIM,), return_sequences = True)(x)
     d1 = Dropout(0.25)(h1)
     #h2 = Dense(32)(d1)
     #d2 = Dropout(0.25)(h2)
     f = Flatten()(d1)
     y = Dense(outp, activation="sigmoid")(f)
+    return Model(inputs=x, outputs=y)
 
+def my_rnn_model_binary(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp=2)
+    Y has binary value so last activation = sigmoid
+    '''
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
+    rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
+    y = Dense(outp, activation="sigmoid")(rnn)
     return Model(inputs=x, outputs=y)
 
 def my_lstm_model_bidirectionnal(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):

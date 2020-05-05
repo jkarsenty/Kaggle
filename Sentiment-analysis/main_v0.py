@@ -182,7 +182,7 @@ else:
 
     ## my binary model ##
     model = my_glove_model_binary(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
-    #model = my_lstm_model_binary(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
+
 model.summary()
 
 ## Parameters of the Compile & Fit ##
