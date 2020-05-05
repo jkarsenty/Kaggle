@@ -119,7 +119,7 @@ print('\n', x_train_pad[5])
 ### Splitting datasets: train & validation ###
 ##############################################
 
-x_train,y_train,x_validate,y_validate = split_dataset(x_train_pad,y_train,train_ratio=0.9,custom=False)
+x_train,y_train,x_validate,y_validate = split_dataset(x_train_pad,y_train,train_ratio=0.8,custom=False)
 assert x_validate.shape[0] == y_validate.shape[0]
 assert x_train.shape[0] == y_train.shape[0]
 
@@ -129,7 +129,7 @@ print('Shape of validation set:',x_validate.shape)
 ### Glove Embedding ###
 #######################
 
-use_glove_embedding_matrix = True
+use_glove_embedding_matrix = False
 GLOVE_DIM = 50
 NB_WORDS = 10000
 glove_folder = 'embedding_matrix'
@@ -165,7 +165,7 @@ if use_glove_embedding_matrix == False:
     print(outp)
 
     ## my model ##
-    model = my_model0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp)
+    model = my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp)
 
 else:
     '''With Glove Embedding'''
@@ -181,7 +181,7 @@ else:
     print(outp)
 
     ## my model ##
-    model = my_model1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
+    model = my_glove_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
 
 model.summary()
 

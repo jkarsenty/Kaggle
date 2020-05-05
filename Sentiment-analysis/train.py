@@ -45,6 +45,62 @@ def split_dataset(X,Y,train_ratio,custom=False):
 
     return x_train, y_train, x_test, y_test
 
+###################################
+### Models with keras Embedding ###
+###################################
+
+def my_model_binary(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp=2)
+    Y has binary value so last activation = sigmoid
+    '''
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
+    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
+    f = Flatten()(embdLayer)
+    y = Dense(outp, activation="sigmoid")(f)
+    return Model(inputs=x, outputs=y)
+
+def my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp)
+    Y has multiclass value (3) so last activation = softmax
+    '''
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
+    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
+    f = Flatten()(embdLayer)
+    y = Dense(outp, activation="softmax")(f)
+    return Model(inputs=x, outputs=y)
+
+###################################
+### Models with Glove Embedding ###
+###################################
+
+def my_glove_model_binary(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp = 2)
+    Y has binary value so last activation = sigmoid
+    '''
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
+    d = Dropout(0.5)(embdLayer)
+    f = Flatten()(d)
+    y = Dense(outp, activation="sigmoid")(f)
+    return Model(inputs=x, outputs=y)
+
+def my_glove_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp)
+    Y has multiclass value (3) so last activation = softmax
+    '''
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
+    d = Dropout(0.5)(embdLayer)
+    f = Flatten()(d)
+    y = Dense(outp, activation="softmax")(f)
+    return Model(inputs=x, outputs=y)
+
 #################################
 ### Embedding Models or Layer ###
 #################################
@@ -73,89 +129,32 @@ def my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix):
     embdLayer = Embedding(voc_dim, EMBEDDING_DIM, weights=[embedding_matrix], trainable=True)
     return embdLayer
 
-###################################
-### Models with keras Embedding ###
-###################################
-
-def my_model_binary0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp):
-    ''' Fonction qui renvoie mon modele
-    Data: en entree shape (*,inpt) et en sortie shape (*, outp=2)
-    Y has binary value so last activation = sigmoid
-    '''
-    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
-    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
-    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
-    f = Flatten()(embdLayer)
-    y = Dense(outp, activation="sigmoid")(f)
-    return Model(inputs=x, outputs=y)
-
-def my_model0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp):
-    ''' Fonction qui renvoie mon modele
-    Data: en entree shape (*,inpt) et en sortie shape (*, outp)
-    Y has multiclass value (3) so last activation = softmax
-    '''
-    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
-    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
-    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
-    f = Flatten()(embdLayer)
-    y = Dense(outp, activation="softmax")(f)
-    return Model(inputs=x, outputs=y)
-
-###################################
-### Models with Glove Embedding ###
-###################################
-
-def my_model_binary1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
-    ''' Fonction qui renvoie mon modele
-    Data: en entree shape (*,inpt) et en sortie shape (*, outp = 2)
-    Y has binary value so last activation = sigmoid
-    '''
-
-    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
-    #embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
-    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
-    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
-    f = Flatten()(embdLayer)
-    y = Dense(outp, activation="sigmoid")(f)
-
-    return Model(inputs=x, outputs=y)
-
-def my_model1(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
-    ''' Fonction qui renvoie mon modele
-    Data: en entree shape (*,inpt) et en sortie shape (*, outp)
-    Y has multiclass value (3) so last activation = softmax
-    '''
-
-    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
-    #embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
-    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
-    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
-    f = Flatten()(embdLayer)
-    y = Dense(outp, activation="softmax")(f)
-
-    return Model(inputs=x, outputs=y)
-
 #####################
 ### Others Models ###
 #####################
 
-def my_lstm_model(inpt,outp):
-    ''' Fonction qui renvoie mon modele
-    Data: en entree shape (*,inpt) et en sortie shape (*, outp) '''
+def my_glove_lstm_model_binary(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    '''Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp = 2)
+    Y has binary value so last activation = sigmoid
+    Modele avec Glove Embeding'''
 
-    x = Input(shape=inpt) #inpt = (max_seq,nb_cat) pour X = (*,max_seq,nb_cat)
-    #embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
-    h1 = LSTM(64, return_sequences = False)(x)
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (max_seq,nb_cat) pour X = (*,max_seq,nb_cat)
+    embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
+    h1 = LSTM(32, return_sequences = False)(x)
     d1 = Dropout(0.25)(h1)
-    h2 = Dense(64)(d1)
-    d2 = Dropout(0.25)(h2)
-    y = Dense(outp, activation="softmax")(d1)
+    #h2 = Dense(32)(d1)
+    #d2 = Dropout(0.25)(h2)
+    f = Flatten()(d1)
+    y = Dense(outp, activation="sigmoid")(f)
 
     return Model(inputs=x, outputs=y)
 
-def my_lstm_model0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
-    ''' Fonction qui renvoie mon modele
-    Data: en entree shape (*,inpt) et en sortie shape (*, outp) '''
+def my_lstm_model_bidirectionnal(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    '''Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp = 2)
+    Y has multiclass value so last activation = softmax
+    Modele avec Glove Embeding'''
 
     x = Input(shape=(MAX_SEQUENCE_LENGTH,))
     embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)

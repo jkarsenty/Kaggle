@@ -119,7 +119,7 @@ print('\n', x_train_pad[5])
 ### Splitting datasets: train & validation ###
 ##############################################
 
-x_train,y_train,x_validate,y_validate = split_dataset(x_train_pad,y_train,train_ratio=0.9,custom=False)
+x_train,y_train,x_validate,y_validate = split_dataset(x_train_pad,y_train,train_ratio=0.8,custom=False)
 assert x_validate.shape[0] == y_validate.shape[0]
 assert x_train.shape[0] == y_train.shape[0]
 
@@ -159,13 +159,13 @@ if use_glove_embedding_matrix == False:
     print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
     voc_dim = 10000 # = NB_WORDS
     print('voc_dim:',voc_dim)
-    EMBEDDING_DIM = 26 #dim de representation
+    EMBEDDING_DIM = 10 #dim de representation
     print('EMBEDDING_DIM:',EMBEDDING_DIM)
     outp = Y.shape[1] #le nombre de classes nos sentiments (binary)
     print(outp)
 
     ## my binary model ##
-    model = my_model_binary0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp)
+    model = my_model_binary(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp)
 
 else:
     '''With Glove Embedding'''
@@ -181,8 +181,8 @@ else:
     print(outp)
 
     ## my binary model ##
-    model = my_model_binary0(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
-
+    model = my_glove_model_binary(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
+    #model = my_lstm_model_binary(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
 model.summary()
 
 ## Parameters of the Compile & Fit ##
