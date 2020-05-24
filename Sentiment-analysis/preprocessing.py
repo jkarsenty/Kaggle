@@ -90,7 +90,7 @@ def remove_stopwords(input_text):
     '''
     stopwords_list = stopwords.words('english')
     # Some words which might indicate a certain sentiment are kept via a whitelist
-    whitelist = ["n't", "not", "no"]
+    whitelist = ["n't", "not", "no","don't"]
     words = input_text.split()
     clean_words = [word for word in words if (word not in stopwords_list or word in whitelist) and len(word) > 1]
     df_column = " ".join(clean_words)
@@ -289,7 +289,7 @@ def bag_of_word(string, word_to_idx):
 
 ## Tests ##
 if (__name__ == "__main__"):
-    
+
     M = ["I`d have responded, if I were going",
     "Sooo SAD I will miss you here in San Diego!!!",
     "my boss is bullying me..., what interview! leave me alone",

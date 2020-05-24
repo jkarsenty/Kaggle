@@ -49,7 +49,7 @@ data.text = data.text.apply(remove_stopwords)
 
 ## Keep only text column ##
 df1 = data.drop('selected_text', axis = 1)
-#print(df1.text.head())
+print(df1.text.head())
 #print(df1.count())
 
 ########################################
