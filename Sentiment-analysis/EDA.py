@@ -3,11 +3,14 @@
 '''
 
 from import_data import *
+from preprocessing import *
 from preprocessing import tokenize_matrix
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import scipy
+
 #################################
 ### Exploratory Data Analysis ###
 #################################
@@ -98,13 +101,21 @@ def exploratory_data_analysis(dataframe, run = True):
         plt.legend()
         plt.show()
 
-        '''
-        On voit bien que entre le text et le selected_text on a sur 90% des tweets
-        nous avons 0 mot de difference
-        '''
-        print("\n","CONCLUSION:","\n",
-        "Sur 90% des tweets le text et le selected_text sont les memes",'\n',
-        "Nous avons imputer la seule valeur null")
+        ### Correlation taille selected_text et text ###
+
+        corr=[]
+        for s in sentiments:
+            text_pos = data.text[data.sentiment==s].astype(str).map(lambda x : len(x.split()))
+            sel_pos = data.selected_text[data.sentiment==s].astype(str).map(lambda x : len(x.split()))
+            corr.append(scipy.stats.pearsonr(text_pos,sel_pos)[0])
+        plt.bar(sentiments,corr,color='blue',alpha=.7)
+        plt.gca().set_title("Correlation nbre mot in text & selected text")
+        plt.gca().set_ylabel("correlation")
+        plt.show()
+
+        print("\n","CONCLUSION:")
+        print("Sur 90% des tweets le text et le selected_text sont les memes",'\n',
+        "Le nbre de mot du text semble etre un facteur important pour predire le selected_text")
 
     return
 

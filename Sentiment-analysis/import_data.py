@@ -37,9 +37,10 @@ def export_file(variable, path_name, format):
     else:
         if format == 'csv':
             variable.to_csv (path_name, index = False, header=True)
+
         elif format == 'json':
             with open(path_name, 'w') as fp:
-                json.dump(dictionary, fp, indent=1)
+                json.dump(variable, fp, indent=3)
         print('export done into '+ path_name)
 
     return
@@ -53,6 +54,7 @@ def export_df(dataframe,path_name):
 
 def export_json(dictionary, path_name):
     '''export a dict into a json file'''
+
     with open(path_name, 'w') as fp:
         json.dump(dictionary, fp, indent=1)
     return

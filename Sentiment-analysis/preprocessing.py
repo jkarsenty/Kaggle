@@ -2,8 +2,10 @@
 Step 2
 Functions for 1rst preprocessing.
 functions in order to build our vocabulary before the model.
+- target_vector(dataframe,y_column_name,integer_value=False)
 - lower_txt(text_list) or lower_df_txt(dataframe, column_name)
 - build_vocabulary(text_list)
+- recup_start_and_end
 - tokenize_matrix(matrix)
 - bag_of_word(string, word_to_idx)
 '''
@@ -90,11 +92,52 @@ def remove_stopwords(input_text):
     '''
     stopwords_list = stopwords.words('english')
     # Some words which might indicate a certain sentiment are kept via a whitelist
-    whitelist = ["n't", "not", "no","don't"]
+    whitelist = ["n't", "not", "no","don","don't"]
     words = input_text.split()
     clean_words = [word for word in words if (word not in stopwords_list or word in whitelist) and len(word) > 1]
     df_column = " ".join(clean_words)
+
     return df_column
+
+def recup_start_and_end(df1):
+    '''From the dataframe of ou tweet give us the list of start and end index
+    of the selected_text in the text. this list will be our new target vector
+    for our model.
+    Y = [[startword],[endword]]'''
+    list_selected_tweet_ind = [] #column of indexes of the selected_text in text
+    for i in range(len(df1)):
+        #print('tweet',i,'de taille',len(df1.selected_tweet[i])-1)
+
+        selected_tweet_ind = [] #list of index of each selected_text in each text
+        for WRD_SLCT in df1.selected_tweet[i]:
+            for ind,WRD_TWT in enumerate(df1.tweet[i]):
+                if WRD_TWT == WRD_SLCT :
+                    #print(ind,WRD_SLCT)
+                    selected_tweet_ind.append(ind)
+
+
+        list_selected_tweet_ind.append(selected_tweet_ind)
+    #print(list_selected_tweet_ind)
+
+    for i in range(len(list_selected_tweet_ind)):
+        ''' pour chaque liste d'indices '''
+        #print('tweet',i,'de taille',len(df1.selected_tweet[i])-1)
+        selected_as_index = list_selected_tweet_ind[i]
+
+        if len(selected_as_index) == 0:
+            list_selected_tweet_ind[i] = None
+        else:
+            '''si le nombre de selected_text trouve n'est pas null
+            alors on ne garde que le start et end'''
+            startind = selected_as_index[0]
+            endind = selected_as_index[-1]
+            #print(startind,endind)
+            list_selected_tweet_ind[i] = [startind,endind]
+            #print(list_selected_tweet_ind[i])
+
+            #print(list_selected_tweet_ind[i])
+    #print(list_selected_tweet_ind)
+    return list_selected_tweet_ind
 
 def tokenize_matrix(matrix,tokenizer=0,NB_WORDS=10000):
     ''' From a matrix of tweet give a matrix of list of words (each tweet)
@@ -104,10 +147,10 @@ def tokenize_matrix(matrix,tokenizer=0,NB_WORDS=10000):
     print('Tokenisation en cours ...')
 
     if tokenizer == 3:
-        '''tokenize our matrix & retrun the tokenizer'''
+        '''tokenize our matrix & return the tokenizer'''
         print('NB_WORD:',NB_WORDS)
         tk = Tokenizer(num_words=NB_WORDS,
-        filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n',
+        filters='!"#$%&()+,-./:;<=>?@[\\]^_`{|}~\t\n',
         lower=True, split=" ")
         tk.fit_on_texts(matrix)
         #newMatrix = tk.texts_to_sequences(matrix)
@@ -295,10 +338,13 @@ if (__name__ == "__main__"):
     "my boss is bullying me..., what interview! leave me alone",
     "Sons of ****, why couldn`t they put them on the releases we already bought",
     "I`d have responded, if I were going"]
-    #print(M)
+    print(M)
     raw_text = lower_txt(M)
     print(raw_text)
     split_text = tokenize_matrix(raw_text,3)
     print(split_text)
     voc = build_vocabulary(raw_text)
     print(voc)
+    stopwords_list = stopwords.words('english')
+    print(len(stopwords_list))
+    print(stopwords_list)

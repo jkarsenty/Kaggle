@@ -82,35 +82,67 @@ def padding(mSequence, sizeSequenceMax):
 
     return X
 
+def padding_for_target(ySequence, sizeSequenceMax):
+    '''
+    Make the padding with keras.preprocessing.sequence.pad_sequences
+    but we have our ySequence wich have two value ySequence = [[y1],[y2]]
+    so we need to make 2 padding for each value
+    also we want to keep the values == 0
+    so we put the sizeSequenceMax value + 1 where there are no value
+    Intput:
+        mSequences (list of list)
+    Output:
+        X matrix of padding sequence
+    '''
+    Y = []
+    Ystart = []
+    Yend = []
+
+    for i in range(len(ySequence)):
+        Ystart.append([ySequence[i][0]])
+        Yend.append([ySequence[i][1]])
+
+    Ystart_seq = pad_sequences(Ystart, maxlen=sizeSequenceMax, padding='post', truncating='post', value=sizeSequenceMax)
+    Yend_seq = pad_sequences(Yend, maxlen=sizeSequenceMax, padding='post', truncating='post', value=sizeSequenceMax)
+
+    for i in range(len(ySequence)):
+        Y.append([Ystart_seq[i],Yend_seq[i]])
+
+    return np.array(Y)
+
 def one_hot_post_padding(matrix, maxSize):
     '''
     Make a one hot matrix X after a padding
     Input:
-        matrix after the padding
-        maxSize = size of the longest tweet (size of each tweet)
+        matrix with 2 list after the padding (so each list is padded)
+        maxSize = size of the longest tweet (size of each list padded)
     Output:
-        a one hot matrix as an array
+        a Matrix of 2 onehot lists inside fo each element as an array
     '''
 
-    X_onehot = [] #our new onehot list of list of list in output
+    Y_onehot = [] #our new onehot list of list of list in output
 
     for tweets in matrix:
         '''for each tweets'''
-        T = np.zeros(maxSize+1) #onehot of each tweets
+        W = [] #List of the 2 words (each word as a list of index)
+        #print(tweets)
 
         for word in tweets:
-            '''for each word in each tweet'''
+            '''for each word (here a list of index) in each tweet'''
+            M = np.zeros(maxSize) #onehot list of the word
 
-            t = int(word) #transform word from float to integer
+            for i in range(maxSize):
+                '''for each index in the list'''
+                t = int(word[i]) #transform word from float to integer
 
-            if t == 0:
-                T[t] = 0
-            else:
-                T[t] = 1
+                if t != maxSize:
+                    M[t] = 1
 
-        X_onehot.append(T) #append each tweet in one list
+            W.append(M) #append each (of the 2) word in one list (selected_text)
 
-    return np.array(X_onehot)
+        Y_onehot.append(W) #append each tweet in one list
+
+    return np.array(Y_onehot)
 
 
 ## Test fonctions ##
