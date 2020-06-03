@@ -200,8 +200,9 @@ print(model_history.history['accuracy'][-1])
 ###############################
 
 ## To plot our train metrics ##
-eval_metric(model_history, 'accuracy')
-eval_metric(model_history, 'loss')
+
+#eval_metric(model_history, 'accuracy')
+#eval_metric(model_history, 'loss')
 
 ## Test on new set ##
 results = model.evaluate(x_test_pad, y_test)

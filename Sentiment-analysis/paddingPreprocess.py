@@ -10,6 +10,7 @@ from import_data import importation
 
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
+import pandas as pd
 
 def from_word_to_integer_cat(matrix,pos_word_to_idx,neg_word_to_idx):
 
@@ -101,7 +102,7 @@ def padding_for_target(ySequence, sizeSequenceMax):
     for i in range(len(ySequence)):
         Ystart.append([ySequence[i][0]])
         Yend.append([ySequence[i][1]])
-
+    #print(Ystart)
     Ystart_seq = pad_sequences(Ystart, maxlen=sizeSequenceMax, padding='post', truncating='post', value=sizeSequenceMax)
     Yend_seq = pad_sequences(Yend, maxlen=sizeSequenceMax, padding='post', truncating='post', value=sizeSequenceMax)
 
@@ -109,6 +110,36 @@ def padding_for_target(ySequence, sizeSequenceMax):
         Y.append([Ystart_seq[i],Yend_seq[i]])
 
     return np.array(Y)
+
+def padding_for_target2(yDataframe, sizeSequenceMax):
+    '''
+    Make the padding with keras.preprocessing.sequence.pad_sequences
+    but we have our yDataframe wich have two columns of numbers yDataframe = [Y1,Y2]
+    so we need to make 2 padding for each value
+    also we want to keep the values == 0
+    so we put the sizeSequenceMax value + 1 where there are no value
+    Intput:
+        mSequences (list of list)
+    Output:
+        X matrix of padding sequence
+    '''
+    Y = pd.DataFrame(columns=['startind','endind'],index=range(len(yDataframe)))
+    Ystart = []
+    Yend = []
+    #print(len(yDataframe))
+    for i in range(len(yDataframe)):
+        Ystart.append([yDataframe.iloc[i,0]])
+        Yend.append([yDataframe.iloc[i,1]])
+
+    Ystart_seq = pad_sequences(Ystart, maxlen=sizeSequenceMax, padding='post', truncating='post', value=sizeSequenceMax)
+    Yend_seq = pad_sequences(Yend, maxlen=sizeSequenceMax, padding='post', truncating='post', value=sizeSequenceMax)
+
+    #print(Ystart_seq.shape)
+    for i in range(len(yDataframe)):
+        #Y.append([Ystart_seq[i],Yend_seq[i]])
+        Y['startind'][i] = Ystart_seq[i]
+        Y['endind'][i] = Yend_seq[i]
+    return Y
 
 def one_hot_post_padding(matrix, maxSize):
     '''

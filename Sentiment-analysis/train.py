@@ -73,6 +73,20 @@ def my_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp):
     y = Dense(outp, activation="softmax")(f)
     return Model(inputs=x, outputs=y)
 
+def my_main_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp)
+    Y is a list of 2 onehot word so last activation = softmax
+    '''
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    embdLayer = Embedding(voc_dim,EMBEDDING_DIM)(x)
+    #rnn = SimpleRNN(int(MAX_SEQUENCE_LENGTH))(embdLayer)
+    f = Flatten()(embdLayer)
+    #f = Dense(2)(embdLayer)
+    y1 = Dense(outp, activation="softmax")(f)
+    y2 = Dense(outp, activation="softmax")(f)
+    return Model(inputs=x, outputs=[y1,y2])
+
 ###################################
 ### Models with Glove Embedding ###
 ###################################
@@ -100,6 +114,19 @@ def my_glove_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,ou
     f = Flatten()(d)
     y = Dense(outp, activation="softmax")(f)
     return Model(inputs=x, outputs=y)
+
+def my_main_glove_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp):
+    ''' Fonction qui renvoie mon modele
+    Data: en entree shape (*,inpt) et en sortie shape (*, outp)
+    Y has multiclass value (3) so last activation = softmax
+    '''
+    x = Input(shape=(MAX_SEQUENCE_LENGTH,)) #inpt = (MAX_SEQUENCE_LENGTH,)
+    embdLayer = my_embedding_layer(voc_dim,EMBEDDING_DIM,embedding_matrix)(x)
+    d = Dropout(0.5)(embdLayer)
+    f = Flatten()(d)
+    y1 = Dense(outp, activation="softmax")(f)
+    y2 = Dense(outp, activation="softmax")
+    return Model(inputs=x, outputs=[y1,y2])
 
 #################################
 ### Embedding Models or Layer ###
@@ -223,5 +250,38 @@ def train_model(xtrain, ytrain, validation_data, model,loss_fct, optimizer, metr
     Callbacks = [callback_2, callback_3]
     #entrainement
     history = M.fit(xtrain,ytrain, callbacks = Callbacks, epochs= epochs, validation_data = validation_data)
+
+    return history
+
+def train_my_model(xtrain, ytrain_list, validation_data, model,loss_fct, optimizer, metrics, epochs=1):
+    ''' Fonction qui permet d'entrainer notre modele a 2 outputs
+    On a les 2 etapes :
+    * compilation = amelioration du modele selon lost function et optimizer
+    * fit = appliquer ce modele au data
+    Input:
+        xtrain : data d'entrainement
+        ytrain_list : liste correspondant a nos labels des data d'entrainement car
+                nous avons 2 outpouts a notre modele.
+        validation_data: nos data de test qui valide le train
+        model : notre modele instancie
+        loss (string): la fonction de cout
+        optimizer (string) : optimiseur utilise pour amelioration lors du train
+        metrics ([liste de string]) : criteres de mesure/metriques
+    '''
+
+    M = model
+
+    #compilation
+    M.compile(loss = loss_fct, optimizer = optimizer, metrics = metrics)
+
+    # Argument permettant la visualisation
+    callback_1 = TensorBoard(log_dir='trainings/train-conv')
+    callback_2 = EarlyStopping(monitor='val_loss', min_delta=0.005, patience=10)
+    callback_3 = ModelCheckpoint(filepath='weights.hdf5', verbose=0, save_best_only=True)
+
+    #Callbacks = [callback_1, callback_2, callback_3]
+    Callbacks = [callback_2, callback_3]
+    #entrainement
+    history = M.fit(xtrain,[ytrain_list[0],ytrain_list[1]], callbacks = Callbacks, epochs= epochs, validation_data = validation_data)
 
     return history

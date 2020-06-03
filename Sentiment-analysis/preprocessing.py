@@ -139,6 +139,53 @@ def recup_start_and_end(df1):
     #print(list_selected_tweet_ind)
     return list_selected_tweet_ind
 
+def recup_start_and_end2(df1):
+    '''From the dataframe of ou tweet give us the list of start and end index
+    of the selected_text in the text. this list will be our new target vector
+    for our model.
+    Y = [[startword],[endword]]'''
+
+    list_selected_tweet_ind = [] #column of indexes of the selected_text in text
+    list_start_ind = []
+    list_end_ind = []
+    for i in range(len(df1)):
+        #print('tweet',i,'de taille',len(df1.selected_tweet[i])-1)
+
+        selected_tweet_ind = [] #list of index of each selected_text in each text
+        for WRD_SLCT in df1.selected_tweet[i]:
+            for ind,WRD_TWT in enumerate(df1.tweet[i]):
+                if WRD_TWT == WRD_SLCT :
+                    #print(ind,WRD_SLCT)
+                    selected_tweet_ind.append(ind)
+
+
+        list_selected_tweet_ind.append(selected_tweet_ind)
+    #print(list_selected_tweet_ind)
+
+    for i in range(len(list_selected_tweet_ind)):
+        ''' pour chaque liste d'indices '''
+        #print('tweet',i,'de taille',len(df1.selected_tweet[i])-1)
+        selected_as_index = list_selected_tweet_ind[i]
+
+        if len(selected_as_index) == 0:
+            #list_selected_tweet_ind[i] = None
+            list_start_ind.append(None)
+            list_end_ind.append(None)
+        else:
+            '''si le nombre de selected_text trouve n'est pas null
+            alors on ne garde que le start et end'''
+            startind = selected_as_index[0]
+            endind = selected_as_index[-1]
+            #print(startind,endind)
+            #list_selected_tweet_ind[i] = [startind,endind]
+            list_start_ind.append(startind)
+            list_end_ind.append(endind)
+            #print(list_selected_tweet_ind[i])
+
+            #print(list_selected_tweet_ind[i])
+    #print(list_selected_tweet_ind)
+    return list_start_ind,list_end_ind
+
 def tokenize_matrix(matrix,tokenizer=0,NB_WORDS=10000):
     ''' From a matrix of tweet give a matrix of list of words (each tweet)
     tokenizer: 0: split, 1: nltk word_tokenize, 2: nltk TweetTokenizer class

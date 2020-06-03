@@ -4,7 +4,7 @@ Main file for Selected text Prediction on Tweeter Sentiment Analysis.
 
 from import_data import importation,export_file
 from EDA import exploratory_data_analysis
-from preprocessing import lower_txt,tokenize_matrix,remove_stopwords,target_vector,recup_start_and_end
+from preprocessing import lower_txt,tokenize_matrix,remove_stopwords,target_vector,recup_start_and_end,recup_start_and_end2
 from embedPreprocess import *
 from paddingPreprocess import *
 from train import *
@@ -36,7 +36,7 @@ exploratory_data_analysis(dataframe=data,run=False)
 ### preprocessing ###
 #####################
 ''' On va realiser une prediction des selected_text '''
-nb_tweet = 20 # nombre de tweet que l'on prend en compte
+nb_tweet = -1 # nombre de tweet que l'on prend en compte
 data = data[:nb_tweet]
 
 ## to lower ##
@@ -72,9 +72,12 @@ if RemoveStpWrd == False:
 
 # 2) recuperation dans une liste de start et end de chaque selected text
 list_selected_tweet_ind = recup_start_and_end(df1)
+list_start_ind,list_end_ind = recup_start_and_end2(df1)
 
 ## Notre nouvelle colonne Y
 df1['selected_index'] = list_selected_tweet_ind
+df1['startind'] = list_start_ind
+df1['endind'] = list_end_ind
 #print(df1.selected_index.head())
 
 #print('Nombre valeur Null:',df1.selected_index.isna().sum())
@@ -92,6 +95,7 @@ else:
 ''' The target classes is a list of 2 numbers - startind and endind
 we will need to onehot this vector '''
 Y = df1.selected_index
+#Y = df1[['startind','endind']]
 print(Y[:3])
 print('Y: shape: ',Y.shape)
 
@@ -102,9 +106,11 @@ print('nombre de tweets: ',len(X))
 ### Split the Dataset ###
 
 #print(type(X),type(Y))
-x_train, y_train, x_test, y_test = split_dataset(X,Y,train_ratio=0.9,custom=False)
+x_train, y_train, x_test, y_test = split_dataset(X,Y,train_ratio=0.8,custom=False)
 print('xtrain :', x_train.shape)
+print('ytrain :', y_train.shape)
 print('xtest :', x_test.shape)
+print('ytest :', y_test.shape)
 ## make sure train_test_split is ok ##
 assert x_train.shape[0] == y_train.shape[0]
 assert x_test.shape[0] == y_test.shape[0]
@@ -144,20 +150,13 @@ maxSize = max(np.max(train_len),np.max(test_len))
 print('max_size: ',maxSize)
 
 ## Stats sur notre Target ##
-y_train_start_max = [s[0] for s in y_train]
-print('indice start y_train max:',max(y_train_start_max))
-y_test_start_max = [s[0] for s in y_test]
-print('indice start y_test max:',max(y_test_start_max))
-y_train_end_max = [s[1] for s in y_train]
-print('indice end y_train max:',max(y_train_end_max))
-y_test_end_max = [s[1] for s in y_test]
-print('indice end y_test max:',max(y_test_end_max))
+y_train_max = [max(s) for s in y_train]
+print('indice start y_train max:',max(y_train_max))
+y_test_max = [max(s) for s in y_test]
+print('indice start y_test max:',max(y_test_max))
 
-maxStart = max(np.max(y_train_start_max),np.max(y_test_start_max))
-maxEnd = max(np.max(y_train_end_max),np.max(y_test_end_max))
-maxStartEnd = max(maxStart,maxEnd)+1 #+1 cause we want the sequence with all index
-print('max_size: ',maxStartEnd)
-
+maxInd = max(np.max(y_train_max),np.max(y_test_max))+1 #+1 cause we want the sequence with all index
+print('max_size: ',maxInd)
 
 ## Padding ##
 x_train_pad = padding(x_train_seq, maxSize)
@@ -165,18 +164,18 @@ x_test_pad = padding(x_test_seq,maxSize)
 print('x_train_pad: shape: ',x_train_pad.shape)
 print('\n', x_train_pad[5])
 
-y_train_pad = padding_for_target(np.array(y_train),maxStartEnd)
-y_test_pad = padding_for_target(np.array(y_test),maxStartEnd)
+y_train_pad = padding_for_target(np.array(y_train),maxInd)
+y_test_pad = padding_for_target(np.array(y_test),maxInd)
 print('y_train_pad: shape: ',y_train_pad.shape)
 print('\n', y_train_pad[0])
+
 
 ############################
 ### One Hot of my Target ###
 ############################
 
-y_train_oh = one_hot_post_padding(y_train_pad, maxStartEnd)
-y_test_oh = one_hot_post_padding(y_test_pad, maxStartEnd)
-
+y_train_oh = one_hot_post_padding(y_train_pad, maxInd)
+y_test_oh = one_hot_post_padding(y_test_pad, maxInd)
 print(y_train_oh[0])
 
 ##############################################
@@ -187,7 +186,27 @@ x_train,y_train,x_validate,y_validate = split_dataset(x_train_pad,y_train_oh,tra
 assert x_validate.shape[0] == y_validate.shape[0]
 assert x_train.shape[0] == y_train.shape[0]
 
-print('Shape of validation set:',x_validate.shape
+print('Shape of validation set:',x_validate.shape)
+print('Shape of validation set:',y_validate.shape)
+
+################################################
+### Fit Y to right shape for 2 output model  ###
+################################################
+
+def adapt_fit_target(Y):
+
+    n = len(Y)
+    y1 = [] #column of Y start
+    y2 = [] #column of Y end
+    for i in range(n):
+        y1.append(Y[i][0])
+        y2.append(Y[i][1])
+
+    newY = [y1,y2]
+    return newY
+y_train_list = adapt_fit_target(y_train)
+y_validate_list = adapt_fit_target(y_validate)
+y_test_list = adapt_fit_target(y_test_oh)
 
 #######################
 ### Glove Embedding ###
@@ -202,3 +221,79 @@ glove_path = glove_folder+'/'+glove_filename
 
 if use_glove_embedding_matrix == True:
     word_to_idx_glove,embedding_matrix = run_use_glove(GLOVE_DIM,glove_path,NB_WORDS,tokenizer=tk)
+
+#############
+### Model ###
+#############
+
+### Our Multiclass Models ###
+
+if use_glove_embedding_matrix == False:
+    '''With keras Embedding layer'''
+
+    MAX_SEQUENCE_LENGTH = maxSize #tweet le plus long
+    print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
+    voc_dim = NB_WORDS #nombre de mots distincts ie:= NB_WORDS = embedding_matrix.shape[0]
+    print('voc_dim:',voc_dim)
+    EMBEDDING_DIM = 26 #dim de representation
+    print('EMBEDDING_DIM:',EMBEDDING_DIM)
+    outp = y_train.shape[2] #le nombre de classes nos sentiments
+    print('outp:',outp)
+
+    ## my model ##
+    model = my_main_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,outp)
+
+else:
+    '''With Glove Embedding'''
+    print('Glove shape:',embedding_matrix.shape)
+
+    MAX_SEQUENCE_LENGTH = maxSize #tweet le plus long
+    print('MAX_SEQUENCE_LENGTH:',MAX_SEQUENCE_LENGTH)
+    voc_dim = embedding_matrix.shape[0] #nombre de mots distincts ie:= NB_WORDS = embedding_matrix.shape[0]
+    print('voc_dim:',voc_dim)
+    EMBEDDING_DIM = embedding_matrix.shape[1] #dim de representation
+    print('EMBEDDING_DIM:',EMBEDDING_DIM)
+    outp = y_train.shape[2] #le nombre de classes nos sentiments
+    print('outp:',outp)
+
+    ## my model ##
+    model = my_main_glove_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matrix,outp)
+
+model.summary()
+
+#############################
+### Compile and Fit model ###
+#############################
+
+## Parameters of the Compile & Fit ##
+validation_data = (x_validate,[y_validate_list[0],y_validate_list[1]])
+loss_fct = 'categorical_crossentropy'
+optimizer = 'adam'
+metrics = ['accuracy']
+epochs = 2
+
+model_history = train_my_model(x_train,y_train_list,validation_data, model,loss_fct,optimizer,metrics,epochs)
+print('Start Ind accuracy:', model_history.history['dense_1_accuracy'][-1])
+print('End Ind accuracy:',model_history.history['dense_2_accuracy'][-1])
+
+###############################
+### Evaluation of the Model ###
+###############################
+
+## To plot our train metrics ##
+
+#eval_metric(model_history, 'dense_1_accuracy')
+#eval_metric(model_history, 'dense_2_accuracy')
+#eval_metric(model_history, 'dense_1_loss')
+#eval_metric(model_history, 'dense_2_loss')
+
+## Test on new set ##
+results = model.evaluate(x_test_pad, y_test_list)
+#print('Loss: %.3f' %results[0])
+#print('Accuracy: %.3f' %results[1])
+print('Evaluation:',results)
+
+## Accuracy_score & Confusion Matrix ##
+from sklearn.metrics import accuracy_score, confusion_matrix
+p_test_list = model.predict(x_test_pad)
+print(np.array(p_test_list).shape,np.array(y_test_list).shape)
