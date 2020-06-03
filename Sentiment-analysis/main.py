@@ -270,7 +270,7 @@ validation_data = (x_validate,[y_validate_list[0],y_validate_list[1]])
 loss_fct = 'categorical_crossentropy'
 optimizer = 'adam'
 metrics = ['accuracy']
-epochs = 2
+epochs = 100
 
 model_history = train_my_model(x_train,y_train_list,validation_data, model,loss_fct,optimizer,metrics,epochs)
 print('Start Ind accuracy:', model_history.history['dense_1_accuracy'][-1])
@@ -295,5 +295,20 @@ print('Evaluation:',results)
 
 ## Accuracy_score & Confusion Matrix ##
 from sklearn.metrics import accuracy_score, confusion_matrix
-p_test_list = model.predict(x_test_pad)
-print(np.array(p_test_list).shape,np.array(y_test_list).shape)
+p_test_list = np.array(model.predict(x_test_pad)) #shape (2, 5382, 33)
+y_test_list = np.array(y_test_list) #shape (2, 5382, 33)
+#print(np.array(p_test_list)[0][0],y_test_list[0][0])
+
+y_test_start = y_test_list[0].argmax(axis = 1)
+y_test_end = y_test_list[1].argmax(axis = 1)
+p_test_start = p_test_list[0].argmax(axis = 1)
+p_test_end = p_test_list[1].argmax(axis = 1)
+print(y_test_start[0],p_test_start[0])
+
+p_acc_start = accuracy_score(y_test_start,p_test_start)
+p_acc_end = accuracy_score(y_test_end,p_test_end)
+conf_mat_start = confusion_matrix(y_test_start,p_test_start)
+conf_mat_end = confusion_matrix(y_test_end,p_test_end)
+print('acc start:',p_acc_start)
+print('acc end :',p_acc_end)
+#print('conf_mat:\n',conf_mat_start)
