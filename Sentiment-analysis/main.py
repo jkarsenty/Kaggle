@@ -311,4 +311,7 @@ conf_mat_start = confusion_matrix(y_test_start,p_test_start)
 conf_mat_end = confusion_matrix(y_test_end,p_test_end)
 print('acc start:',p_acc_start)
 print('acc end :',p_acc_end)
-#print('conf_mat:\n',conf_mat_start)
+
+
+def from_start_end_to_selected_text(predict_start,predict_end):
+    return
