@@ -51,10 +51,15 @@ if RemoveStpWrd == True:
     #remove_stopwords permet aussi de mettre les tweet en liste de mot
     data.text = data.text.apply(remove_stopwords)
 
-## Remove textID column ##
-df1 = data.drop(['textID'],axis=1)
-#print(df1.text.head())
+## Keep only 2 sentiments ##
+'''because for neutral sentiment we will keep all the text as selected_text'''
+data1 = data[data.sentiment.isin(['negative','positive'])]
+#print(data.head())
 #print(df1.count())
+
+## Remove textID column ##
+df1 = data1.drop(['textID'],axis=1)
+df1 = df1.reset_index()
 
 ##########################################
 ### Selected text index on text column ###
@@ -68,7 +73,7 @@ if RemoveStpWrd == False:
     '''si on ne l'a pas fait avant avec le remove_stopwords'''
     df1['tweet'] = df1.text.apply(lambda x: x.split())
     df1['selected_tweet'] = df1.selected_text.apply(lambda x: x.split())
-#print(df1.selected_text)
+#print(df1.selected_tweet)
 
 # 2) recuperation dans une liste de start et end de chaque selected text
 list_selected_tweet_ind = recup_start_and_end(df1)
@@ -132,6 +137,9 @@ x_test_seq = tk.texts_to_sequences(x_test)
 #config = tk.get_config()
 #config = eval(config['word_counts'])
 #export_file(config,"config.json",format='json')
+#print(x_test_seq[0])
+#mot = tk.sequences_to_texts([[2717, 29, 15, 250, 7]])
+#print(mot)
 
 ###############
 ### padding ###
@@ -168,7 +176,6 @@ y_train_pad = padding_for_target(np.array(y_train),maxInd)
 y_test_pad = padding_for_target(np.array(y_test),maxInd)
 print('y_train_pad: shape: ',y_train_pad.shape)
 print('\n', y_train_pad[0])
-
 
 ############################
 ### One Hot of my Target ###
@@ -270,7 +277,7 @@ validation_data = (x_validate,[y_validate_list[0],y_validate_list[1]])
 loss_fct = 'categorical_crossentropy'
 optimizer = 'adam'
 metrics = ['accuracy']
-epochs = 100
+epochs = 10
 
 model_history = train_my_model(x_train,y_train_list,validation_data, model,loss_fct,optimizer,metrics,epochs)
 print('Start Ind accuracy:', model_history.history['dense_1_accuracy'][-1])
@@ -312,6 +319,50 @@ conf_mat_end = confusion_matrix(y_test_end,p_test_end)
 print('acc start:',p_acc_start)
 print('acc end :',p_acc_end)
 
+#####################################
+### Post Processing of prediction ###
+#####################################
 
-def from_start_end_to_selected_text(predict_start,predict_end):
-    return
+def from_start_end_to_selected_text(X_pad,predict_start,predict_end):
+
+    # From padding to sequence
+    X_SEQ = [] # X seq (without the padding)
+    for i in range(len(X_pad)):
+        text = X_pad[i]
+        new_text = []
+        #print(text)
+        for elt in text:
+            #on parcourt les mots
+            #print(elt)
+            if elt != 0:
+                new_text.append(elt)
+            #print(new_text)
+        #X_pad[i] = tk.sequences_to_texts([new_text])
+        X_SEQ.append(new_text)
+
+    # From sequence to Selected sequence
+    SEL_TXT = []
+    for i in range(len(X_SEQ)):
+        text = X_SEQ[i]
+        start = predict_start[i]
+        end = predict_end[i]
+        #print(text)
+
+        # keep only text between start and end
+        selected_text = text[start:end+1] #text[ind from start to end included]
+        #print(selected_text)
+        SEL_TXT.append(selected_text)
+
+    #print(SEL_TXT)
+    return SEL_TXT
+
+
+SEL_TXT_p = from_start_end_to_selected_text(x_test_pad,p_test_start,p_test_end)
+#print(SEL_TXT_p[:4])
+SEL_TXT_p = tk.sequences_to_texts(np.array(SEL_TXT_p))
+#print(SEL_TXT_p[:4])
+
+#print(x_test_pad[2],y_test_start[2],y_test_end[2])
+#SEL_TXT_y = from_start_end_to_selected_text(x_test_pad,y_test_start,y_test_end)
+#SEL_TXT_y = tk.sequences_to_texts(np.array(SEL_TXT_y))
+#print(SEL_TXT_y[:4])
