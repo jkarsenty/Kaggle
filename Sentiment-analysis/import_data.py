@@ -58,3 +58,15 @@ def export_json(dictionary, path_name):
     with open(path_name, 'w') as fp:
         json.dump(dictionary, fp, indent=1)
     return
+
+def submission(output_file, test_df, selected_text_predict):
+    '''
+    fonction pour soumettre les data a kaggle
+    output_file = le chemin du fichier a soumettre
+    '''
+
+    with open(output_file, 'w') as f :
+        f.write('textID,selected_text\n')
+        for i in range(len(test_df)) :
+            f.write(''.join(str(test_df.textID[i])+','+str(selected_text_predict[i])+'\n'))
+    return

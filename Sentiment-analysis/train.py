@@ -125,7 +125,7 @@ def my_main_glove_model(MAX_SEQUENCE_LENGTH,voc_dim,EMBEDDING_DIM,embedding_matr
     d = Dropout(0.5)(embdLayer)
     f = Flatten()(d)
     y1 = Dense(outp, activation="softmax")(f)
-    y2 = Dense(outp, activation="softmax")
+    y2 = Dense(outp, activation="softmax")(f)
     return Model(inputs=x, outputs=[y1,y2])
 
 #################################

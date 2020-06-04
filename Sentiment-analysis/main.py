@@ -2,7 +2,7 @@
 Main file for Selected text Prediction on Tweeter Sentiment Analysis.
 """
 
-from import_data import importation,export_file
+from import_data import *
 from EDA import exploratory_data_analysis
 from preprocessing import lower_txt,tokenize_matrix,remove_stopwords,target_vector,recup_start_and_end,recup_start_and_end2
 from embedPreprocess import *
@@ -219,7 +219,7 @@ y_test_list = adapt_fit_target(y_test_oh)
 ### Glove Embedding ###
 #######################
 
-use_glove_embedding_matrix = False
+use_glove_embedding_matrix = True
 GLOVE_DIM = 50
 NB_WORDS = 10000
 glove_folder = 'embedding_matrix'
@@ -277,7 +277,7 @@ validation_data = (x_validate,[y_validate_list[0],y_validate_list[1]])
 loss_fct = 'categorical_crossentropy'
 optimizer = 'adam'
 metrics = ['accuracy']
-epochs = 10
+epochs = 100
 
 model_history = train_my_model(x_train,y_train_list,validation_data, model,loss_fct,optimizer,metrics,epochs)
 print('Start Ind accuracy:', model_history.history['dense_1_accuracy'][-1])
@@ -366,3 +366,55 @@ SEL_TXT_p = tk.sequences_to_texts(np.array(SEL_TXT_p))
 #SEL_TXT_y = from_start_end_to_selected_text(x_test_pad,y_test_start,y_test_end)
 #SEL_TXT_y = tk.sequences_to_texts(np.array(SEL_TXT_y))
 #print(SEL_TXT_y[:4])
+
+##################
+### Submission ###
+##################
+
+test_df = importation("data/test.csv")
+
+def preprocess_data_test(df,maxSize):
+    '''preprocess the test data to fit the shape of model and make prediction'''
+
+    x = lower_txt(df.text)
+    tk = tokenize_matrix(x,tokenizer=3)
+    x_seq = tk.texts_to_sequences(x)
+    x_pad = padding(x_seq, maxSize)
+
+    return x_pad
+
+x_pad = preprocess_data_test(test_df,maxSize)
+#print(x_pad[:2])
+
+predict_list = np.array(model.predict(x_pad))
+p_start = predict_list[0].argmax(axis = 1)
+p_end = predict_list[1].argmax(axis = 1)
+selected_text_predict = from_start_end_to_selected_text(x_pad,p_start,p_end)
+selected_text_predict = tk.sequences_to_texts(np.array(selected_text_predict))
+print(selected_text_predict[:2])
+print(np.array(selected_text_predict).shape)
+
+def submission_df(selected_text_predict,df):
+    '''return a column with textID of test_df and selected_text predict by model'''
+    #on cree une nouvelle colonne dans notre df avec le selected_text_predict
+
+    df['selected_text_predict'] = selected_text_predict
+    #on garde le text par defaut et on met le selected_text_predict
+    df['selected_text'] = df[['text']]
+    for i in range(len(df)):
+        sentiment = df.sentiment[i]
+        if sentiment != 'neutral':
+            df.selected_text[i]=df.selected_text_predict[i]
+
+    return df
+
+submit = submission_df(selected_text_predict,test_df)
+#export_file(submit,'submission2.csv','csv')
+
+submit_kaggle = submit[['textID','selected_text']]
+#print(submit_kaggle.head(5))
+
+## export file ##
+#export_file(submit_kaggle,path_name='sample_sumbmission.csv',format='csv')
+#output_file='sample_sumbmission2.csv'
+#submission(output_file, test_df, selected_text_predict)
