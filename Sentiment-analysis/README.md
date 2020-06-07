@@ -11,8 +11,8 @@
 ### main.py: Main file for the Kaggle competition  Tweeter Sentiment Analysis
 model predict the indexes of start word and end word of selected_text in the text.
 model with one Input (our text embedded and pad_sequenced) and two outputs (onehot index for start word and onehot index for end word)
-- prediction with simple embedding model : Accuracy of 0.53 for start_word and 0.4 for end_word 
-==> Need to improve the model because of overfitting (0.88 and 0.82)
+- prediction with simple embedding model : Accuracy of 0.53 for start_word and 0.4 for end_word   
+==> Need to improve the model because of overfitting (0.88 and 0.82)  
 ==> Future work to test in order to improve :
 - dropout 
 - test with Glove embedding matrix
